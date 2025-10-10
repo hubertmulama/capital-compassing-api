@@ -4,10 +4,10 @@ export default async function handler(req, res) {
   try {
     // connect to your InfinityFree MySQL database
     const connection = await mysql.createConnection({
-      host: "sql100.infinityfree.com",         // e.g., sqlXXX.infinityfree.com
-      user: "if0_40104742",
-      password: "QqeV2uBH782g",
-      database: "if0_40104742_infinityfreecapitalcompassing",
+      host: "sql.freedb.tech",         // e.g., sqlXXX.infinityfree.com
+      user: "freedb_Hubert_mulama",
+      password: "#?wqa5T4m5GB%JB",
+      database: "freedb_Capital compassing",
     });
 
     const [rows] = await connection.execute("SELECT * FROM clients");
@@ -21,4 +21,5 @@ export default async function handler(req, res) {
     res.status(500).json({ status: "error", message: err.message });
   }
 }
+
 
