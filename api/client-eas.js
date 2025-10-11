@@ -23,10 +23,10 @@ export default async function handler(req, res) {
 
   try {
     const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      host: "sql.freedb.tech",         // e.g., sqlXXX.infinityfree.com
+      user: "freedb_Hubert_mulama",
+      password: "#?wqa5T4m5GB%JB",
+      database: "freedb_Capital compassing", 
     });
 
     // Query to get the client's EA assignments by MT5 name
