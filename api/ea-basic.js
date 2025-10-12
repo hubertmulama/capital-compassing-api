@@ -1,4 +1,5 @@
-// /api/ea-basic.js
+
+import { getConnection } from './db-config.js';
 import mysql from 'mysql2/promise';
 
 export default async function handler(req, res) {
