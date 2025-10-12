@@ -1,5 +1,5 @@
 
-import { getDbConfig } from '_db-config.js';
+
 import mysql from 'mysql2/promise';
 
 
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       error: 'Missing mt5_name parameter' 
     });
   }
-/*
+
   try {
     const connection = await mysql.createConnection({
       host: "sql.freedb.tech",         // e.g., sqlXXX.infinityfree.com
@@ -32,8 +32,8 @@ export default async function handler(req, res) {
       password: "#?wqa5T4m5GB%JB",
       database: "freedb_Capital compassing", 
     });
-*/
-    const connection = await mysql.createConnection(getDbConfig());
+
+
 
     
     const [clientRows] = await connection.execute(
