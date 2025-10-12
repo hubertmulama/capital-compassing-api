@@ -25,13 +25,9 @@ export default async function handler(req, res) {
     });
   }
 
+  let connection;
   try {
-    const connection = await mysql.createConnection({
-      host: "sql.freedb.tech",         // e.g., sqlXXX.infinityfree.com
-      user: "freedb_Hubert_mulama",
-      password: "#?wqa5T4m5GB%JB",
-      database: "freedb_Capital compassing", 
-    });
+    connection = await getConnection();
 
     // Get basic EA information from eas table only
     const [eaRows] = await connection.execute(
