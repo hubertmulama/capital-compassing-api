@@ -33,6 +33,7 @@ export default async function handler(req, res) {
       database: "freedb_Capital compassing", 
     });
 */
+    const connection = await mysql.createConnection(getDbConfig());
 
     
     const [clientRows] = await connection.execute(
