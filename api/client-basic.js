@@ -1,5 +1,5 @@
 
-import { getConnection } from '../lib/database.js';
+import { getConnection } from '../../lib/database.js';
 import mysql from 'mysql2/promise';
 
 
