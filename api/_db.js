@@ -2,7 +2,7 @@
 import mysql from 'mysql2/promise';
 
 const dbConfig = {
-  host: "sql.freedb.tecth",
+  host: "sql.freedb.tech",
   user: "freedb_Hubert_mulama", 
   password: "#?wqa5T4m5GB%JB",
   database: "freedb_Capital compassing", // No backticks - confirmed working
