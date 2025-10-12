@@ -1,5 +1,5 @@
 
-import { getDbConfig } from './_db-config.js';
+import { getDbConfig } from '_db-config.js';
 import mysql from 'mysql2/promise';
 
 
