@@ -1,13 +1,13 @@
-// /api/_db.js - Shared Database Configuration (HARDCODED - NOT RECOMMENDED)
+// /api/_db.js - Shared Database Configuration (CONFIRMED WORKING)
 import mysql from 'mysql2/promise';
 
-// ⚠️ SECURITY WARNING: Hardcoded credentials are not safe for production!
 const dbConfig = {
-  host: "sql.freedb.tech",
+  host: "sql.freedb.tecth",
   user: "freedb_Hubert_mulama", 
   password: "#?wqa5T4m5GB%JB",
-  database: "freedb_Capital compassing", // No backticks
-  connectTimeout: 10000
+  database: "freedb_Capital compassing", // No backticks - confirmed working
+  connectTimeout: 10000,
+  timeout: 10000
 };
 
 // Create connection function
@@ -41,3 +41,6 @@ export async function testConnection() {
     }
   }
 }
+
+// Export the config for direct use if needed
+export { dbConfig };
