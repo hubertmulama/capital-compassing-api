@@ -4,11 +4,10 @@ import mysql from 'mysql2/promise';
 // ⚠️ SECURITY WARNING: Hardcoded credentials are not safe for production!
 const dbConfig = {
   host: "sql.freedb.tech",
-  user: "freedb_Hubert_mulama",
+  user: "freedb_Hubert_mulama", 
   password: "#?wqa5T4m5GB%JB",
-  database: "`freedb_Capital compassing`", // Backticks for space in name
-  connectTimeout: 10000,
-  timeout: 10000
+  database: "freedb_Capital compassing", // No backticks
+  connectTimeout: 10000
 };
 
 // Create connection function
