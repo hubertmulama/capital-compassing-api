@@ -1,4 +1,5 @@
-// /api/client-basic.js
+// Alternative: Format date in SQL query
+// /api/client-basic.js (Alternative Version)
 import mysql from 'mysql2/promise';
 
 export default async function handler(req, res) {
@@ -32,9 +33,18 @@ export default async function handler(req, res) {
       database: "freedb_Capital compassing", 
     });
 
-    // Get ONLY client information from clients table
+    // Format date directly in SQL query
     const [clientRows] = await connection.execute(
-      `SELECT * FROM clients WHERE mt5_name = ?`,
+      `SELECT 
+        id,
+        name,
+        mt5_name,
+        email,
+        state,
+        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as created_at_formatted,
+        created_at as created_at_original
+      FROM clients 
+      WHERE mt5_name = ?`,
       [mt5_name]
     );
 
@@ -58,7 +68,8 @@ export default async function handler(req, res) {
         mt5_name: client.mt5_name,
         email: client.email,
         state: client.state,
-        created_at: client.created_at
+        created_at: client.created_at_formatted,
+        created_at_original: client.created_at_original
       }
     });
 
@@ -70,3 +81,7 @@ export default async function handler(req, res) {
     });
   }
 }
+
+
+
+
