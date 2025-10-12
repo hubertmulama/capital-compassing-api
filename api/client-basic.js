@@ -1,8 +1,7 @@
-// /api/client-formatted.js
+// /api/client-basic.js - UPDATED WITH WORKING DATE FORMAT
 import mysql from 'mysql2/promise';
 
 export default async function handler(req, res) {
-  // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -32,7 +31,6 @@ export default async function handler(req, res) {
       database: "freedb_Capital compassing", 
     });
 
-    // Get client information
     const [clientRows] = await connection.execute(
       `SELECT * FROM clients WHERE mt5_name = ?`,
       [mt5_name]
@@ -48,15 +46,12 @@ export default async function handler(req, res) {
     }
 
     const client = clientRows[0];
-
-    // Format the date properly
+    
+    // Use the same date formatting that worked in client-formatted
     const formatMySQLDate = (mysqlDate) => {
       if (!mysqlDate) return 'Unknown';
       
-      // MySQL date comes as: 2025-10-06T12:35:03.000Z
       const date = new Date(mysqlDate);
-      
-      // Format to: YYYY-MM-DD HH:MM:SS
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
@@ -67,7 +62,6 @@ export default async function handler(req, res) {
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     };
 
-    // Return client details with formatted date
     return res.status(200).json({
       success: true,
       client: {
