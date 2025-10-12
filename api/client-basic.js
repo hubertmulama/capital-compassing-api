@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       error: 'Missing mt5_name parameter' 
     });
   }
-
+/*
   try {
     const connection = await mysql.createConnection({
       host: "sql.freedb.tech",         // e.g., sqlXXX.infinityfree.com
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       password: "#?wqa5T4m5GB%JB",
       database: "freedb_Capital compassing", 
     });
-
+*/
     const [clientRows] = await connection.execute(
       `SELECT * FROM clients WHERE mt5_name = ?`,
       [mt5_name]
