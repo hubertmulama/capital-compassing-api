@@ -1,9 +1,10 @@
 // /api/_db-config.js
 export const getDbConfig = () => {
   return {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    const connection = await mysql.createConnection({
+      host: "sql.freedb.tech",         // e.g., sqlXXX.infinityfree.com
+      user: "freedb_Hubert_mulama",
+      password: "#?wqa5T4m5GB%JB",
+      database: "freedb_Capital compassing",
   };
 };
