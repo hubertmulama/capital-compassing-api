@@ -1,5 +1,4 @@
-// Alternative: Format date in SQL query
-// /api/client-basic.js (Alternative Version)
+// /api/client-formatted.js
 import mysql from 'mysql2/promise';
 
 export default async function handler(req, res) {
@@ -33,18 +32,9 @@ export default async function handler(req, res) {
       database: "freedb_Capital compassing", 
     });
 
-    // Format date directly in SQL query
+    // Get client information
     const [clientRows] = await connection.execute(
-      `SELECT 
-        id,
-        name,
-        mt5_name,
-        email,
-        state,
-        DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') as created_at_formatted,
-        created_at as created_at_original
-      FROM clients 
-      WHERE mt5_name = ?`,
+      `SELECT * FROM clients WHERE mt5_name = ?`,
       [mt5_name]
     );
 
@@ -59,7 +49,25 @@ export default async function handler(req, res) {
 
     const client = clientRows[0];
 
-    // Return only the client details
+    // Format the date properly
+    const formatMySQLDate = (mysqlDate) => {
+      if (!mysqlDate) return 'Unknown';
+      
+      // MySQL date comes as: 2025-10-06T12:35:03.000Z
+      const date = new Date(mysqlDate);
+      
+      // Format to: YYYY-MM-DD HH:MM:SS
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    };
+
+    // Return client details with formatted date
     return res.status(200).json({
       success: true,
       client: {
@@ -68,8 +76,7 @@ export default async function handler(req, res) {
         mt5_name: client.mt5_name,
         email: client.email,
         state: client.state,
-        created_at: client.created_at_formatted,
-        created_at_original: client.created_at_original
+        created_at: formatMySQLDate(client.created_at)
       }
     });
 
