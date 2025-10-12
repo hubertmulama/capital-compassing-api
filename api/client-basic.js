@@ -1,5 +1,7 @@
 // /api/client-basic.js - UPDATED WITH WORKING DATE FORMAT
+import { getConnection } from '../../lib/database.js';
 import mysql from 'mysql2/promise';
+
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
