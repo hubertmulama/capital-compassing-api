@@ -1,7 +1,4 @@
-
 import { getConnection } from './db-config.js';
-import mysql from 'mysql2/promise';
-
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -24,22 +21,17 @@ export default async function handler(req, res) {
       error: 'Missing mt5_name parameter' 
     });
   }
-/*
-  try {
-    const connection = await mysql.createConnection({
-      host: "sql.freedb.tech",         // e.g., sqlXXX.infinityfree.com
-      user: "freedb_Hubert_mulama",
-      password: "#?wqa5T4m5GB%JB",
-      database: "freedb_Capital compassing", 
-    });
-*/
+
   let connection;
   try {
     connection = await getConnection();
 
-    
+    // Updated query joining with the new mt5_account_names table
     const [clientRows] = await connection.execute(
-      `SELECT * FROM clients WHERE mt5_name = ?`,
+      `SELECT c.*, man.mt5_name 
+       FROM clients c
+       INNER JOIN mt5_account_names man ON c.id = man.client_id
+       WHERE man.mt5_name = ? AND man.state = 'active'`,
       [mt5_name]
     );
 
@@ -54,7 +46,6 @@ export default async function handler(req, res) {
 
     const client = clientRows[0];
     
-    // Use the same date formatting that worked in client-formatted
     const formatMySQLDate = (mysqlDate) => {
       if (!mysqlDate) return 'Unknown';
       
@@ -74,7 +65,7 @@ export default async function handler(req, res) {
       client: {
         id: client.id,
         name: client.name,
-        mt5_name: client.mt5_name,
+        mt5_name: client.mt5_name, // Now comes from mt5_account_names table
         email: client.email,
         state: client.state,
         created_at: formatMySQLDate(client.created_at)
@@ -83,13 +74,12 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Database error:', error);
+    if (connection) {
+      await connection.end().catch(console.error);
+    }
     return res.status(500).json({ 
       success: false,
       error: error.message 
     });
   }
 }
-
-
-
-
