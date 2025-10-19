@@ -44,14 +44,14 @@ export default async function handler(req, res) {
 
     // Check if account number exists for this mt5_name
     const [accountRows] = await connection.execute(
-      `SELECT id FROM account_numbers WHERE mt5_name_id = ? AND account_number = ?`,
+      `SELECT id FROM account_details WHERE mt5_name_id = ? AND account_number = ?`,
       [mt5_name_id, account_number]
     );
 
     // If account number doesn't exist, insert it first
     if (accountRows.length === 0) {
       await connection.execute(
-        `INSERT INTO account_numbers (mt5_name_id, account_number, state) VALUES (?, ?, 'active')`,
+        `INSERT INTO account_details (mt5_name_id, account_number) VALUES (?, ?)`,
         [mt5_name_id, account_number]
       );
       console.log(`New account number ${account_number} linked to MT5 name ${mt5_name}`);
@@ -59,7 +59,7 @@ export default async function handler(req, res) {
 
     // Now update account details
     const [result] = await connection.execute(
-      `UPDATE account_numbers 
+      `UPDATE account_details 
        SET balance=?, equity=?, margin=?, free_margin=?, leverage=?, updated_at=NOW()
        WHERE mt5_name_id = ? AND account_number = ?`,
       [balance, equity, margin, free_margin, leverage, mt5_name_id, account_number]
