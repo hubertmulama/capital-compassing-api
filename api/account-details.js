@@ -15,14 +15,25 @@ export default async function handler(req, res) {
 
   let body;
   try {
-    // Parse the raw body
-    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    console.log('Raw request body:', req.body);
+    console.log('Body type:', typeof req.body);
+    
+    // Handle different body formats
+    if (typeof req.body === 'string') {
+      body = JSON.parse(req.body);
+    } else if (req.body && typeof req.body === 'object') {
+      body = req.body;
+    } else {
+      throw new Error('Invalid body format');
+    }
+    
     console.log('Parsed body:', body);
   } catch (e) {
-    console.log('Body parsing error:', e);
+    console.log('Body parsing error:', e.message);
+    console.log('Received body:', req.body);
     return res.status(400).json({ 
       success: false,
-      error: 'Invalid JSON body' 
+      error: 'Invalid JSON body: ' + e.message 
     });
   }
 
