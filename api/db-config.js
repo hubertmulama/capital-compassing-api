@@ -1,13 +1,13 @@
-// /api/_db.js - Shared Database Configuration (CONFIRMED WORKING)
 import mysql from 'mysql2/promise';
 
 const dbConfig = {
   host: "sql.freedb.tech",
   user: "freedb_Hubert_mulama", 
   password: "#?wqa5T4m5GB%JB",
-  database: "freedb_Capital compassing", // No backticks - confirmed working
-  connectTimeout: 10000,
-  timeout: 10000
+  database: "freedb_Capital compassing",
+  connectTimeout: 10000,  // Use connectTimeout instead of timeout
+  acquireTimeout: 10000,  // For connection pool timeout
+  timeout: 10000          // For query timeout (some drivers support this)
 };
 
 // Create connection function
