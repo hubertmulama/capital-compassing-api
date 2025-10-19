@@ -26,12 +26,14 @@ export default async function handler(req, res) {
   try {
     connection = await getConnection();
 
-    // Updated query joining with the new mt5_account_names table
+    // Updated query - removed the state filter to return regardless of MT5 account state
     const [clientRows] = await connection.execute(
-      `SELECT c.*, man.mt5_name 
+      `SELECT 
+         c.id, c.name, c.email, c.state as client_state, c.created_at as client_created_at,
+         man.mt5_name, man.state as mt5_state, man.created_at as mt5_created_at
        FROM clients c
        INNER JOIN mt5_account_names man ON c.id = man.client_id
-       WHERE man.mt5_name = ?`,
+       WHERE man.mt5_name = ?`,  // Removed: AND man.state = 'active'
       [mt5_name]
     );
 
@@ -44,7 +46,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const client = clientRows[0];
+    const row = clientRows[0];
     
     const formatMySQLDate = (mysqlDate) => {
       if (!mysqlDate) return 'Unknown';
@@ -63,12 +65,14 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       client: {
-        id: client.id,
-        name: client.name,
-        mt5_name: client.mt5_name, // Now comes from mt5_account_names table
-        email: client.email,
-        state: client.state,
-        created_at: formatMySQLDate(client.created_at)
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        client_state: row.client_state,
+        client_created_at: formatMySQLDate(row.client_created_at),
+        mt5_name: row.mt5_name,
+        mt5_state: row.mt5_state,  // Will show actual state (active/inactive)
+        mt5_created_at: formatMySQLDate(row.mt5_created_at)
       }
     });
 
