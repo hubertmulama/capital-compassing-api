@@ -16,22 +16,36 @@ export default async function handler(req, res) {
   console.log('=== API CALLED ===');
 
   try {
-    // Vercel should automatically parse JSON if Content-Type is correct
-    console.log('Request body:', req.body);
-    console.log('Body type:', typeof req.body);
+    // Get the raw body as buffer
+    const chunks = [];
+    for await (const chunk of req) {
+      chunks.push(chunk);
+    }
+    const rawBody = Buffer.concat(chunks).toString('utf8');
     
-    if (!req.body) {
+    console.log('Raw body received:', rawBody);
+    console.log('Raw body length:', rawBody.length);
+
+    if (!rawBody || rawBody.length === 0) {
       return res.status(400).json({ 
         success: false,
-        error: 'No request body received' 
+        error: 'Empty request body' 
       });
     }
 
-    const { mt5_name, account_number, balance, equity, margin, free_margin, leverage } = req.body;
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(rawBody);
+      console.log('Successfully parsed JSON:', parsedBody);
+    } catch (parseError) {
+      console.log('JSON parse failed:', parseError.message);
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid JSON: ' + parseError.message 
+      });
+    }
 
-    console.log('Extracted values:', {
-      mt5_name, account_number, balance, equity, margin, free_margin, leverage
-    });
+    const { mt5_name, account_number, balance, equity, margin, free_margin, leverage } = parsedBody;
 
     if (!mt5_name || !account_number) {
       return res.status(400).json({ 
@@ -43,7 +57,7 @@ export default async function handler(req, res) {
     let connection = await getConnection();
     console.log('Database connected');
 
-    // Get mt5_name_id
+    // Rest of your database code...
     const [mt5Rows] = await connection.execute(
       `SELECT id FROM mt5_account_names WHERE mt5_name = ? AND state = 'active'`,
       [mt5_name]
@@ -59,13 +73,11 @@ export default async function handler(req, res) {
 
     const mt5_name_id = mt5Rows[0].id;
 
-    // Check if account number exists
     const [accountRows] = await connection.execute(
       `SELECT id FROM account_details WHERE mt5_name_id = ? AND account_number = ?`,
       [mt5_name_id, account_number]
     );
 
-    // Insert if doesn't exist
     if (accountRows.length === 0) {
       await connection.execute(
         `INSERT INTO account_details (mt5_name_id, account_number) VALUES (?, ?)`,
@@ -73,7 +85,6 @@ export default async function handler(req, res) {
       );
     }
 
-    // Update account details
     await connection.execute(
       `UPDATE account_details 
        SET balance=?, equity=?, margin=?, free_margin=?, leverage=?, updated_at=NOW()
