@@ -18,33 +18,46 @@ export default async function handler(req, res) {
     console.log('Raw request body:', req.body);
     console.log('Body type:', typeof req.body);
     
-    // Handle different body formats
+    // MQL5 might be sending URL-encoded form data or raw string
     if (typeof req.body === 'string') {
-      body = JSON.parse(req.body);
+      // Try to parse as JSON first
+      try {
+        body = JSON.parse(req.body);
+      } catch (jsonError) {
+        // If JSON fails, try to parse as URL-encoded
+        const params = new URLSearchParams(req.body);
+        body = {};
+        for (const [key, value] of params) {
+          body[key] = value;
+        }
+        console.log('Parsed as URL-encoded:', body);
+      }
     } else if (req.body && typeof req.body === 'object') {
       body = req.body;
     } else {
-      throw new Error('Invalid body format');
+      // Get raw body from stream if available
+      body = req.body || {};
     }
     
-    console.log('Parsed body:', body);
+    console.log('Final parsed body:', body);
   } catch (e) {
     console.log('Body parsing error:', e.message);
-    console.log('Received body:', req.body);
-    return res.status(400).json({ 
-      success: false,
-      error: 'Invalid JSON body: ' + e.message 
-    });
+    // Accept the request anyway and try to use what we have
+    body = req.body || {};
   }
 
-  const { mt5_name, account_number, balance, equity, margin, free_margin, leverage } = body;
+  // Extract parameters with fallbacks
+  const mt5_name = body.mt5_name || body.mt5_name;
+  const account_number = body.account_number || body.account_number;
+  const balance = parseFloat(body.balance) || 0;
+  const equity = parseFloat(body.equity) || 0;
+  const margin = parseFloat(body.margin) || 0;
+  const free_margin = parseFloat(body.free_margin) || 0;
+  const leverage = parseInt(body.leverage) || 0;
 
-  // Debug logging
-  console.log('=== API CALL RECEIVED ===');
-  console.log('mt5_name:', mt5_name);
-  console.log('account_number:', account_number);
-  console.log('balance:', balance);
-  console.log('equity:', equity);
+  console.log('Extracted values:', {
+    mt5_name, account_number, balance, equity, margin, free_margin, leverage
+  });
 
   if (!mt5_name || !account_number) {
     console.log('ERROR: Missing mt5_name or account_number');
