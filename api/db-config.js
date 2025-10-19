@@ -5,9 +5,8 @@ const dbConfig = {
   user: "freedb_Hubert_mulama", 
   password: "#?wqa5T4m5GB%JB",
   database: "freedb_Capital compassing",
-  connectTimeout: 10000,  // Use connectTimeout instead of timeout
-  acquireTimeout: 10000,  // For connection pool timeout
-  timeout: 10000          // For query timeout (some drivers support this)
+  connectTimeout: 10000,  // Only use connectTimeout
+  // Remove timeout and acquireTimeout - they're not valid for createConnection
 };
 
 // Create connection function
@@ -22,7 +21,7 @@ export async function getConnection() {
   }
 }
 
-// Test connection function
+// Rest of your code remains the same...
 export async function testConnection() {
   let connection;
   try {
@@ -42,5 +41,4 @@ export async function testConnection() {
   }
 }
 
-// Export the config for direct use if needed
 export { dbConfig };
