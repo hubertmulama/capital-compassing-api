@@ -85,9 +85,9 @@ export default async function handler(req, res) {
     let connection = await getConnection();
     console.log('Database connected');
 
-    // Rest of your database code...
+    // REMOVED: state check - now accepts any MT5 name regardless of state
     const [mt5Rows] = await connection.execute(
-      `SELECT id FROM mt5_account_names WHERE mt5_name = ? AND state = 'active'`,
+      `SELECT id FROM mt5_account_names WHERE mt5_name = ?`,  // Removed: AND state = 'active'
       [mt5_name]
     );
 
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       await connection.end();
       return res.status(404).json({
         success: false,
-        error: 'MT5 name not found or inactive'
+        error: 'MT5 name not found'
       });
     }
 
