@@ -13,18 +13,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { mt5_name, account_number, balance, equity, margin, free_margin, leverage } = req.body;
+  let body;
+  try {
+    // Parse the raw body
+    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    console.log('Parsed body:', body);
+  } catch (e) {
+    console.log('Body parsing error:', e);
+    return res.status(400).json({ 
+      success: false,
+      error: 'Invalid JSON body' 
+    });
+  }
+
+  const { mt5_name, account_number, balance, equity, margin, free_margin, leverage } = body;
 
   // Debug logging
   console.log('=== API CALL RECEIVED ===');
-  console.log('Request body:', req.body);
   console.log('mt5_name:', mt5_name);
   console.log('account_number:', account_number);
   console.log('balance:', balance);
   console.log('equity:', equity);
-  console.log('margin:', margin);
-  console.log('free_margin:', free_margin);
-  console.log('leverage:', leverage);
 
   if (!mt5_name || !account_number) {
     console.log('ERROR: Missing mt5_name or account_number');
