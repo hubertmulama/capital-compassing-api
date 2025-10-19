@@ -13,23 +13,48 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  console.log('Received body:', req.body);
+  console.log('=== RAW REQUEST INFO ===');
+  console.log('req.body:', req.body);
+  console.log('typeof req.body:', typeof req.body);
+  console.log('req.headers:', req.headers);
 
   let body;
   try {
+    // Vercel might already parse the body for us
     body = req.body;
-    console.log('Using body directly:', body);
+    console.log('Parsed body:', body);
+    
+    // If body is empty or undefined, there might be a parsing issue
+    if (!body || Object.keys(body).length === 0) {
+      console.log('Body is empty, checking raw request...');
+      return res.status(400).json({ 
+        success: false,
+        error: 'Empty request body' 
+      });
+    }
   } catch (e) {
-    console.log('Error:', e.message);
+    console.log('Body access error:', e.message);
     return res.status(400).json({ 
       success: false,
-      error: 'Bad request' 
+      error: 'Cannot access request body: ' + e.message 
     });
   }
 
-  const { mt5_name, account_number, balance, equity, margin, free_margin, leverage } = body;
+  // Extract values with proper type checking
+  const mt5_name = String(body.mt5_name || '');
+  const account_number = String(body.account_number || '');
+  const balance = parseFloat(body.balance) || 0;
+  const equity = parseFloat(body.equity) || 0;
+  const margin = parseFloat(body.margin) || 0;
+  const free_margin = parseFloat(body.free_margin) || 0;
+  const leverage = parseInt(body.leverage) || 0;
+
+  console.log('Extracted values:', {
+    mt5_name, account_number, balance, equity, margin, free_margin, leverage
+  });
 
   if (!mt5_name || !account_number) {
+    console.log('ERROR: Missing required fields');
     return res.status(400).json({ 
       success: false,
       error: 'Missing mt5_name or account_number' 
@@ -39,8 +64,9 @@ export default async function handler(req, res) {
   let connection;
   try {
     connection = await getConnection();
+    console.log('Database connection established');
 
-    // Get mt5_name_id
+    // Rest of your database code remains the same...
     const [mt5Rows] = await connection.execute(
       `SELECT id FROM mt5_account_names WHERE mt5_name = ? AND state = 'active'`,
       [mt5_name]
@@ -56,13 +82,11 @@ export default async function handler(req, res) {
 
     const mt5_name_id = mt5Rows[0].id;
 
-    // Check if account number exists
     const [accountRows] = await connection.execute(
       `SELECT id FROM account_details WHERE mt5_name_id = ? AND account_number = ?`,
       [mt5_name_id, account_number]
     );
 
-    // Insert if doesn't exist
     if (accountRows.length === 0) {
       await connection.execute(
         `INSERT INTO account_details (mt5_name_id, account_number) VALUES (?, ?)`,
@@ -70,7 +94,6 @@ export default async function handler(req, res) {
       );
     }
 
-    // Update account details
     await connection.execute(
       `UPDATE account_details 
        SET balance=?, equity=?, margin=?, free_margin=?, leverage=?, updated_at=NOW()
