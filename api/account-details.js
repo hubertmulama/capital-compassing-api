@@ -33,16 +33,44 @@ export default async function handler(req, res) {
       });
     }
 
+    // Clean the JSON string - remove any null characters or extra whitespace
+    const cleanedBody = rawBody.replace(/\0/g, '').trim();
+    console.log('Cleaned body:', cleanedBody);
+    console.log('Cleaned length:', cleanedBody.length);
+
     let parsedBody;
     try {
-      parsedBody = JSON.parse(rawBody);
+      parsedBody = JSON.parse(cleanedBody);
       console.log('Successfully parsed JSON:', parsedBody);
     } catch (parseError) {
       console.log('JSON parse failed:', parseError.message);
-      return res.status(400).json({ 
-        success: false,
-        error: 'Invalid JSON: ' + parseError.message 
-      });
+      // Try to extract values manually as fallback
+      try {
+        const mt5_match = cleanedBody.match(/"mt5_name":"([^"]*)"/);
+        const account_match = cleanedBody.match(/"account_number":"([^"]*)"/);
+        const balance_match = cleanedBody.match(/"balance":([\d.]+)/);
+        const equity_match = cleanedBody.match(/"equity":([\d.]+)/);
+        const margin_match = cleanedBody.match(/"margin":([\d.]+)/);
+        const free_margin_match = cleanedBody.match(/"free_margin":([\d.]+)/);
+        const leverage_match = cleanedBody.match(/"leverage":([\d.]+)/);
+        
+        parsedBody = {
+          mt5_name: mt5_match ? mt5_match[1] : null,
+          account_number: account_match ? account_match[1] : null,
+          balance: balance_match ? parseFloat(balance_match[1]) : 0,
+          equity: equity_match ? parseFloat(equity_match[1]) : 0,
+          margin: margin_match ? parseFloat(margin_match[1]) : 0,
+          free_margin: free_margin_match ? parseFloat(free_margin_match[1]) : 0,
+          leverage: leverage_match ? parseInt(leverage_match[1]) : 0
+        };
+        console.log('Manually extracted values:', parsedBody);
+      } catch (manualError) {
+        console.log('Manual extraction also failed:', manualError.message);
+        return res.status(400).json({ 
+          success: false,
+          error: 'Invalid JSON format' 
+        });
+      }
     }
 
     const { mt5_name, account_number, balance, equity, margin, free_margin, leverage } = parsedBody;
