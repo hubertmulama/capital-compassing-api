@@ -31,7 +31,7 @@ export default async function handler(req, res) {
       `SELECT c.*, man.mt5_name 
        FROM clients c
        INNER JOIN mt5_account_names man ON c.id = man.client_id
-       WHERE man.mt5_name = ? AND man.state = 'active'`,
+       WHERE man.mt5_name = ?`,
       [mt5_name]
     );
 
