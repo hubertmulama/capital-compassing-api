@@ -15,7 +15,19 @@ export default async function handler(req, res) {
 
   const { mt5_name, account_number, balance, equity, margin, free_margin, leverage } = req.body;
 
+  // Debug logging
+  console.log('=== API CALL RECEIVED ===');
+  console.log('Request body:', req.body);
+  console.log('mt5_name:', mt5_name);
+  console.log('account_number:', account_number);
+  console.log('balance:', balance);
+  console.log('equity:', equity);
+  console.log('margin:', margin);
+  console.log('free_margin:', free_margin);
+  console.log('leverage:', leverage);
+
   if (!mt5_name || !account_number) {
+    console.log('ERROR: Missing mt5_name or account_number');
     return res.status(400).json({ 
       success: false,
       error: 'Missing mt5_name or account_number' 
@@ -25,6 +37,7 @@ export default async function handler(req, res) {
   let connection;
   try {
     connection = await getConnection();
+    console.log('Database connection established');
 
     // First get the mt5_name_id
     const [mt5Rows] = await connection.execute(
@@ -32,8 +45,11 @@ export default async function handler(req, res) {
       [mt5_name]
     );
 
+    console.log('MT5 query result:', mt5Rows);
+
     if (mt5Rows.length === 0) {
       await connection.end();
+      console.log('ERROR: MT5 name not found or inactive');
       return res.status(404).json({
         success: false,
         error: 'MT5 name not found or inactive'
@@ -41,6 +57,7 @@ export default async function handler(req, res) {
     }
 
     const mt5_name_id = mt5Rows[0].id;
+    console.log('Found MT5 name ID:', mt5_name_id);
 
     // Check if account number exists for this mt5_name
     const [accountRows] = await connection.execute(
@@ -48,8 +65,11 @@ export default async function handler(req, res) {
       [mt5_name_id, account_number]
     );
 
+    console.log('Account check result:', accountRows);
+
     // If account number doesn't exist, insert it first
     if (accountRows.length === 0) {
+      console.log('Inserting new account number');
       await connection.execute(
         `INSERT INTO account_details (mt5_name_id, account_number) VALUES (?, ?)`,
         [mt5_name_id, account_number]
@@ -58,6 +78,7 @@ export default async function handler(req, res) {
     }
 
     // Now update account details
+    console.log('Updating account details');
     const [result] = await connection.execute(
       `UPDATE account_details 
        SET balance=?, equity=?, margin=?, free_margin=?, leverage=?, updated_at=NOW()
@@ -65,7 +86,10 @@ export default async function handler(req, res) {
       [balance, equity, margin, free_margin, leverage, mt5_name_id, account_number]
     );
 
+    console.log('Update result:', result);
+
     await connection.end();
+    console.log('SUCCESS: Account details updated');
 
     return res.status(200).json({
       success: true,
