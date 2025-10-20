@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  console.log('=== API CALLED ===');
+  console.log('=== ACCOUNT-DETAILS API CALL ===');
 
   try {
     // Get the raw body as buffer
@@ -33,10 +33,9 @@ export default async function handler(req, res) {
       });
     }
 
-    // Clean the JSON string - remove any null characters or extra whitespace
+    // Clean the JSON string
     const cleanedBody = rawBody.replace(/\0/g, '').trim();
     console.log('Cleaned body:', cleanedBody);
-    console.log('Cleaned length:', cleanedBody.length);
 
     let parsedBody;
     try {
@@ -44,36 +43,17 @@ export default async function handler(req, res) {
       console.log('Successfully parsed JSON:', parsedBody);
     } catch (parseError) {
       console.log('JSON parse failed:', parseError.message);
-      // Try to extract values manually as fallback
-      try {
-        const mt5_match = cleanedBody.match(/"mt5_name":"([^"]*)"/);
-        const account_match = cleanedBody.match(/"account_number":"([^"]*)"/);
-        const balance_match = cleanedBody.match(/"balance":([\d.]+)/);
-        const equity_match = cleanedBody.match(/"equity":([\d.]+)/);
-        const margin_match = cleanedBody.match(/"margin":([\d.]+)/);
-        const free_margin_match = cleanedBody.match(/"free_margin":([\d.]+)/);
-        const leverage_match = cleanedBody.match(/"leverage":([\d.]+)/);
-        
-        parsedBody = {
-          mt5_name: mt5_match ? mt5_match[1] : null,
-          account_number: account_match ? account_match[1] : null,
-          balance: balance_match ? parseFloat(balance_match[1]) : 0,
-          equity: equity_match ? parseFloat(equity_match[1]) : 0,
-          margin: margin_match ? parseFloat(margin_match[1]) : 0,
-          free_margin: free_margin_match ? parseFloat(free_margin_match[1]) : 0,
-          leverage: leverage_match ? parseInt(leverage_match[1]) : 0
-        };
-        console.log('Manually extracted values:', parsedBody);
-      } catch (manualError) {
-        console.log('Manual extraction also failed:', manualError.message);
-        return res.status(400).json({ 
-          success: false,
-          error: 'Invalid JSON format' 
-        });
-      }
+      return res.status(400).json({ 
+        success: false,
+        error: 'Invalid JSON format' 
+      });
     }
 
     const { mt5_name, account_number, balance, equity, margin, free_margin, leverage } = parsedBody;
+
+    console.log('Extracted values:', {
+      mt5_name, account_number, balance, equity, margin, free_margin, leverage
+    });
 
     if (!mt5_name || !account_number) {
       return res.status(400).json({ 
@@ -85,14 +65,17 @@ export default async function handler(req, res) {
     let connection = await getConnection();
     console.log('Database connected');
 
-    // REMOVED: state check - now accepts any MT5 name regardless of state
+    // Check if MT5 name exists
     const [mt5Rows] = await connection.execute(
-      `SELECT id FROM mt5_account_names WHERE mt5_name = ?`,  // Removed: AND state = 'active'
+      `SELECT id FROM mt5_account_names WHERE mt5_name = ?`,
       [mt5_name]
     );
 
+    console.log('MT5 query result:', mt5Rows);
+
     if (mt5Rows.length === 0) {
       await connection.end();
+      console.log('MT5 name not found:', mt5_name);
       return res.status(404).json({
         success: false,
         error: 'MT5 name not found'
@@ -100,25 +83,37 @@ export default async function handler(req, res) {
     }
 
     const mt5_name_id = mt5Rows[0].id;
+    console.log('Found MT5 name ID:', mt5_name_id);
 
+    // Check if account number exists
     const [accountRows] = await connection.execute(
       `SELECT id FROM account_details WHERE mt5_name_id = ? AND account_number = ?`,
       [mt5_name_id, account_number]
     );
 
+    console.log('Account check result:', accountRows);
+
+    // If account number doesn't exist, insert it first
     if (accountRows.length === 0) {
+      console.log('Inserting new account number');
       await connection.execute(
         `INSERT INTO account_details (mt5_name_id, account_number) VALUES (?, ?)`,
         [mt5_name_id, account_number]
       );
+      console.log('New account number inserted');
     }
 
-    await connection.execute(
+    // Update account details
+    console.log('Updating account details');
+    const [result] = await connection.execute(
       `UPDATE account_details 
        SET balance=?, equity=?, margin=?, free_margin=?, leverage=?, updated_at=NOW()
        WHERE mt5_name_id = ? AND account_number = ?`,
       [balance, equity, margin, free_margin, leverage, mt5_name_id, account_number]
     );
+
+    console.log('Update result:', result);
+    console.log('Rows affected:', result.affectedRows);
 
     await connection.end();
 
@@ -129,7 +124,8 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('ERROR:', error);
+    console.error('ERROR in account-details API:', error);
+    console.error('Error stack:', error.stack);
     return res.status(500).json({ 
       success: false,
       error: error.message 
