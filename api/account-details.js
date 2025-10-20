@@ -24,7 +24,6 @@ export default async function handler(req, res) {
     const rawBody = Buffer.concat(chunks).toString('utf8');
     
     console.log('Raw body received:', rawBody);
-    console.log('Raw body length:', rawBody.length);
 
     if (!rawBody || rawBody.length === 0) {
       return res.status(400).json({ 
@@ -33,11 +32,9 @@ export default async function handler(req, res) {
       });
     }
 
-    // Clean the JSON string
     const cleanedBody = rawBody.replace(/\0/g, '').trim();
-    console.log('Cleaned body:', cleanedBody);
-
     let parsedBody;
+
     try {
       parsedBody = JSON.parse(cleanedBody);
       console.log('Successfully parsed JSON:', parsedBody);
@@ -65,7 +62,7 @@ export default async function handler(req, res) {
     let connection = await getConnection();
     console.log('Database connected');
 
-    // Check if MT5 name exists
+    // Get the MT5 name ID
     const [mt5Rows] = await connection.execute(
       `SELECT id FROM mt5_account_names WHERE mt5_name = ?`,
       [mt5_name]
@@ -85,39 +82,38 @@ export default async function handler(req, res) {
     const mt5_name_id = mt5Rows[0].id;
     console.log('Found MT5 name ID:', mt5_name_id);
 
-    // Check if account number exists
-    const [accountRows] = await connection.execute(
+    // Check if this specific MT5 name + account number combination exists
+    const [existingRows] = await connection.execute(
       `SELECT id FROM account_details WHERE mt5_name_id = ? AND account_number = ?`,
       [mt5_name_id, account_number]
     );
 
-    console.log('Account check result:', accountRows);
+    console.log('Existing account check:', existingRows);
 
-    // If account number doesn't exist, insert it first
-    if (accountRows.length === 0) {
-      console.log('Inserting new account number');
+    if (existingRows.length > 0) {
+      // Update existing record for this MT5 name + account number
+      console.log('Updating existing account record');
       await connection.execute(
-        `INSERT INTO account_details (mt5_name_id, account_number) VALUES (?, ?)`,
-        [mt5_name_id, account_number]
+        `UPDATE account_details 
+         SET balance=?, equity=?, margin=?, free_margin=?, leverage=?, updated_at=NOW()
+         WHERE mt5_name_id = ? AND account_number = ?`,
+        [balance, equity, margin, free_margin, leverage, mt5_name_id, account_number]
       );
-      console.log('New account number inserted');
+      console.log('Existing account updated');
+    } else {
+      // Insert new record - same account number but different MT5 name is allowed
+      console.log('Inserting new account record');
+      await connection.execute(
+        `INSERT INTO account_details (mt5_name_id, account_number, balance, equity, margin, free_margin, leverage) 
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [mt5_name_id, account_number, balance, equity, margin, free_margin, leverage]
+      );
+      console.log('New account record inserted');
     }
-
-    // Update account details
-    console.log('Updating account details');
-    const [result] = await connection.execute(
-      `UPDATE account_details 
-       SET balance=?, equity=?, margin=?, free_margin=?, leverage=?, updated_at=NOW()
-       WHERE mt5_name_id = ? AND account_number = ?`,
-      [balance, equity, margin, free_margin, leverage, mt5_name_id, account_number]
-    );
-
-    console.log('Update result:', result);
-    console.log('Rows affected:', result.affectedRows);
 
     await connection.end();
 
-    console.log('SUCCESS: Account updated');
+    console.log('SUCCESS: Account details processed');
     return res.status(200).json({
       success: true,
       message: 'Account details updated successfully'
@@ -125,7 +121,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('ERROR in account-details API:', error);
-    console.error('Error stack:', error.stack);
     return res.status(500).json({ 
       success: false,
       error: error.message 
