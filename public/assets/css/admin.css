@@ -1,330 +1,273 @@
-// Mobile menu toggle
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        sidebar.classList.toggle('active');
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-// Tab navigation
-function initializeTabs() {
-    const navItems = document.querySelectorAll('.nav-item');
-    if (navItems.length === 0) return;
-    
-    navItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Remove active class from all
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            
-            // Add active class to clicked
-            this.classList.add('active');
-            const tabId = this.getAttribute('data-tab');
-            const tabContent = document.getElementById(tabId);
-            if (tabContent) {
-                tabContent.classList.add('active');
-            }
-            
-            // Close mobile menu
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.classList.remove('active');
-            }
-        });
-    });
+:root {
+    --primary: #4361ee;
+    --secondary: #3a0ca3;
+    --success: #4cc9f0;
+    --danger: #f72585;
+    --dark: #1a1a2e;
+    --light: #f8f9fa;
 }
 
-// Run SQL query
-async function runQuery(customQuery = null) {
-    const sqlEditor = document.getElementById('sqlEditor');
-    const resultDiv = document.getElementById('sqlResult');
-    
-    if (!resultDiv) return;
-    
-    const sql = customQuery || (sqlEditor ? sqlEditor.value : '');
-    resultDiv.innerHTML = 'Running query...';
-    
-    try {
-        const response = await fetch('/api/admin/data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sql })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            if (data.rows.length > 0) {
-                resultDiv.innerHTML = createTableHTML(data.rows);
-            } else {
-                resultDiv.innerHTML = '<div style="color: green;">✅ Query executed successfully. Rows affected: ' + data.rowCount + '</div>';
-            }
-        } else {
-            resultDiv.innerHTML = '<div style="color: red;">❌ Error: ' + data.error + '</div>';
-        }
-    } catch (error) {
-        resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
-    }
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f5f5;
+    color: #333;
 }
 
-// Create HTML table from data with action buttons
-function createTableHTML(rows, tableName = '') {
-    if (rows.length === 0) return '<div>No data found</div>';
-    
-    let html = '<h4>Results (' + rows.length + ' rows)</h4>';
-    html += '<div style="overflow-x: auto;"><table><tr>';
-    
-    // Header - add Actions column if table has state
-    const hasState = rows[0].state !== undefined;
-    Object.keys(rows[0]).forEach(key => {
-        html += '<th>' + key + '</th>';
-    });
-    if (hasState && tableName) {
-        html += '<th>Actions</th>';
-    }
-    html += '</tr>';
-    
-    // Rows
-    rows.forEach(row => {
-        html += '<tr>';
-        Object.values(row).forEach(value => {
-            html += '<td>' + (value === null ? 'NULL' : value) + '</td>';
-        });
-        
-        // Add toggle button if table has state
-        if (hasState && tableName) {
-            const isActive = row.state === 'active' || row.state === 'enabled';
-            const newState = isActive ? 'disabled' : (tableName === 'clients' ? 'inactive' : 'enabled');
-            const buttonText = isActive ? 'Disable' : 'Enable';
-            const buttonClass = isActive ? 'btn-danger' : 'btn-success';
-            
-            html += `<td>
-                <button class="btn-toggle ${buttonClass}" 
-                        onclick="toggleState('${tableName}', ${row.id}, '${newState}')"
-                        data-id="${row.id}"
-                        data-table="${tableName}">
-                    ${buttonText}
-                </button>
-            </td>`;
-        }
-        html += '</tr>';
-    });
-    
-    html += '</table></div>';
-    return html;
+.dashboard {
+    display: flex;
+    min-height: 100vh;
 }
 
-// Toggle state function
-async function toggleState(tableName, id, newState) {
-    console.log(`Toggling ${tableName} ID ${id} to ${newState}`);
-    
-    // Determine the correct state column value based on table
-    let stateValue = newState;
-    
-    try {
-        const response = await fetch('/api/admin/data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                sql: `UPDATE ${tableName} SET state = $1 WHERE id = $2`,
-                params: [stateValue, id]
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            showNotification(`✅ ${tableName} ${id} ${newState} successfully!`, 'success');
-            // Reload the current table to reflect changes
-            reloadCurrentTable();
-        } else {
-            showNotification(`❌ Error: ${data.error}`, 'error');
-        }
-    } catch (error) {
-        showNotification(`❌ Request failed: ${error.message}`, 'error');
-    }
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: var(--dark);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
 }
 
-// Show notification
-function showNotification(message, type = 'info') {
-    // Remove existing notification
-    const existingNotification = document.getElementById('global-notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
-    
-    const notification = document.createElement('div');
-    notification.id = 'global-notification';
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        border-radius: 8px;
-        color: white;
-        font-weight: bold;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        transition: all 0.3s ease;
-    `;
-    
-    if (type === 'success') {
-        notification.style.background = '#10b981';
-    } else if (type === 'error') {
-        notification.style.background = '#ef4444';
-    } else {
-        notification.style.background = '#3b82f6';
-    }
-    
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+.sidebar-header {
+    padding: 2rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid #2d3748;
 }
 
-// Reload current table after state change
-function reloadCurrentTable() {
-    const activeTab = document.querySelector('.nav-item.active');
-    if (activeTab) {
-        const tabId = activeTab.getAttribute('data-tab');
-        
-        // Map tab IDs to table names
-        const tabToTable = {
-            'clients': 'clients',
-            'eas': 'eas',
-            'trading': 'trading_pairs'
-        };
-        
-        const tableName = tabToTable[tabId];
-        if (tableName) {
-            setTimeout(() => loadTable(tableName), 500);
-        }
-    }
+.sidebar-header h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    color: var(--success);
 }
 
-// Load table data with enhanced display
-async function loadTable(tableName) {
-    console.log('loadTable called with:', tableName);
-    
-    // Map table names to their correct element IDs
-    const elementMap = {
-        'clients': 'clientsResult',
-        'eas': 'easResult', 
-        'trading_pairs': 'tradingResult',
-        'client_eas': 'clientsResult',
-        'mt5_account_names': 'clientsResult',
-        'ea_pair_assignments': 'easResult'
-    };
-    
-    const elementId = elementMap[tableName];
-    console.log('Looking for element:', elementId);
-    
-    const resultDiv = document.getElementById(elementId);
-    
-    if (!resultDiv) {
-        console.error('Element not found:', elementId);
-        return;
-    }
-    
-    resultDiv.innerHTML = 'Loading...';
-    
-    try {
-        let query = `SELECT * FROM ${tableName} LIMIT 20;`;
-        
-        // Special queries for joined tables
-        if (tableName === 'client_eas') {
-            query = `
-                SELECT ce.*, c.name as client_name, ea.name as ea_name 
-                FROM client_eas ce
-                LEFT JOIN clients c ON ce.client_id = c.id
-                LEFT JOIN eas ea ON ce.ea_id = ea.id
-                LIMIT 20;
-            `;
-        } else if (tableName === 'mt5_account_names') {
-            query = `
-                SELECT man.*, c.name as client_name 
-                FROM mt5_account_names man
-                LEFT JOIN clients c ON man.client_id = c.id
-                LIMIT 20;
-            `;
-        } else if (tableName === 'ea_pair_assignments') {
-            query = `
-                SELECT epa.*, ea.name as ea_name, tp.pair as pair_name 
-                FROM ea_pair_assignments epa
-                LEFT JOIN eas ea ON epa.ea_id = ea.id
-                LEFT JOIN trading_pairs tp ON epa.pair_id = tp.id
-                LIMIT 20;
-            `;
-        }
-        
-        const response = await fetch('/api/admin/data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sql: query })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            if (data.rows.length > 0) {
-                resultDiv.innerHTML = createTableHTML(data.rows, tableName);
-            } else {
-                resultDiv.innerHTML = '<div style="color: green;">✅ No data found</div>';
-            }
-        } else {
-            resultDiv.innerHTML = '<div style="color: red;">❌ Error: ' + data.error + '</div>';
-        }
-    } catch (error) {
-        resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
-    }
+.nav-item {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
 }
 
-// Load dashboard stats
-async function refreshStats() {
-    const statsGrid = document.getElementById('statsGrid');
-    if (!statsGrid) return;
-    
-    const statCards = statsGrid.querySelectorAll('.stat-number');
-    if (statCards.length === 0) return;
-    
-    // Show loading
-    statCards.forEach(card => card.textContent = '...');
-    
-    try {
-        const queries = [
-            'SELECT COUNT(*) as count FROM clients',
-            'SELECT COUNT(*) as count FROM eas',
-            'SELECT COUNT(*) as count FROM trading_pairs',
-            'SELECT COUNT(*) as count FROM account_details'
-        ];
-        
-        const results = await Promise.all(queries.map(query => 
-            fetch('/api/admin/data', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sql: query })
-            }).then(r => r.json())
-        ));
-        
-        // Update stats
-        results.forEach((result, index) => {
-            if (result.success && statCards[index]) {
-                statCards[index].textContent = result.rows[0].count;
-            }
-        });
-        
-    } catch (error) {
-        console.error('Error loading stats:', error);
-    }
+.nav-item:hover, .nav-item.active {
+    background: #2d3748;
+    border-left-color: var(--primary);
 }
 
-// Initialize dashboard - wait for full page load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Admin dashboard initialized');
-    initializeTabs();
-    refreshStats();
-});
+.nav-item i {
+    margin-right: 0.75rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 2rem;
+}
+
+.header {
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.content-area {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.sql-editor {
+    width: 100%;
+    height: 120px;
+    padding: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    resize: vertical;
+    margin-bottom: 1rem;
+}
+
+.btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.btn:hover {
+    background: var(--secondary);
+    transform: translateY(-2px);
+}
+
+/* Toggle buttons */
+.btn-toggle {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    margin: 0.2rem;
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+.result-area {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+    background: #f7fafc;
+    font-weight: 600;
+}
+
+.mobile-menu {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: var(--dark);
+    cursor: pointer;
+}
+
+/* Notification styles */
+#global-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .mobile-menu {
+        display: block;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-right: 0;
+    }
+}
