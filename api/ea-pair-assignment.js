@@ -1,4 +1,4 @@
-import { getConnection } from './db-config.js';
+import { executeQuery } from './db-config.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -23,12 +23,9 @@ export default async function handler(req, res) {
     });
   }
 
-  let connection;
   try {
-    connection = await getConnection();
-
     // Query to get EA-pair assignment with joined data
-    const [assignmentRows] = await connection.execute(
+    const assignmentResult = await executeQuery(
       `SELECT 
         epa.*,
         ea.name as ea_name,
@@ -37,20 +34,18 @@ export default async function handler(req, res) {
        FROM ea_pair_assignments epa
        INNER JOIN eas ea ON epa.ea_id = ea.id
        INNER JOIN trading_pairs tp ON epa.pair_id = tp.id
-       WHERE epa.ea_id = ? AND epa.pair_id = ?`,
+       WHERE epa.ea_id = $1 AND epa.pair_id = $2`,
       [ea_id, pair_id]
     );
 
-    await connection.end();
-
-    if (assignmentRows.length === 0) {
+    if (assignmentResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: 'EA-Pair assignment not found'
       });
     }
 
-    const assignment = assignmentRows[0];
+    const assignment = assignmentResult.rows[0];
 
     return res.status(200).json({
       success: true,
@@ -68,9 +63,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Database error:', error);
-    if (connection) {
-      await connection.end().catch(console.error);
-    }
     return res.status(500).json({ 
       success: false,
       error: error.message 
