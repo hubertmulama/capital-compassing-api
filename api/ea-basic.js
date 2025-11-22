@@ -1,6 +1,4 @@
-
-import { getConnection } from './db-config.js';
-import mysql from 'mysql2/promise';
+import { executeQuery } from './db-config.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -25,26 +23,21 @@ export default async function handler(req, res) {
     });
   }
 
-  let connection;
   try {
-    connection = await getConnection();
-
     // Get basic EA information from eas table only
-    const [eaRows] = await connection.execute(
-      `SELECT * FROM eas WHERE name = ?`,
+    const eaResult = await executeQuery(
+      `SELECT * FROM eas WHERE name = $1`,
       [ea_name]
     );
 
-    await connection.end();
-
-    if (eaRows.length === 0) {
+    if (eaResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: 'EA not found'
       });
     }
 
-    const ea = eaRows[0];
+    const ea = eaResult.rows[0];
 
     // Return only the EA details
     return res.status(200).json({
