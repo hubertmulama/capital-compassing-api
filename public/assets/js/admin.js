@@ -150,7 +150,7 @@ async function toggleState(tableName, id, newState) {
             showNotification(`❌ Error: ${data.error}`, 'error');
         }
     } catch (error) {
-        showNotification(`❌ Request failed: ${error.message}`, 'error');
+        showNotification(`❌ Request failed: ${data.error}`, 'error');
     }
 }
 
@@ -242,7 +242,7 @@ async function loadTable(tableName) {
     resultDiv.innerHTML = 'Loading...';
     
     try {
-        let query = `SELECT * FROM ${tableName} LIMIT 20;`;
+        let query = `SELECT * FROM ${tableName} ORDER BY id LIMIT 20;`; // Added ORDER BY for consistency
         
         // Special queries for joined tables
         if (tableName === 'client_eas') {
@@ -251,14 +251,14 @@ async function loadTable(tableName) {
                 FROM client_eas ce
                 LEFT JOIN clients c ON ce.client_id = c.id
                 LEFT JOIN eas ea ON ce.ea_id = ea.id
-                LIMIT 20;
+                ORDER BY ce.id LIMIT 20;
             `;
         } else if (tableName === 'mt5_account_names') {
             query = `
                 SELECT man.*, c.name as client_name 
                 FROM mt5_account_names man
                 LEFT JOIN clients c ON man.client_id = c.id
-                LIMIT 20;
+                ORDER BY man.id LIMIT 20;
             `;
         } else if (tableName === 'ea_pair_assignments') {
             query = `
@@ -266,11 +266,12 @@ async function loadTable(tableName) {
                 FROM ea_pair_assignments epa
                 LEFT JOIN eas ea ON epa.ea_id = ea.id
                 LEFT JOIN trading_pairs tp ON epa.pair_id = tp.id
-                LIMIT 20;
+                ORDER BY epa.id LIMIT 20;
             `;
         }
-        // REMOVED: No special filtering for trading_pairs - show ALL pairs
+        // IMPORTANT: Trading pairs now shows ALL pairs without filtering
         
+        console.log('Executing query:', query);
         const response = await fetch('/api/admin/data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -278,6 +279,7 @@ async function loadTable(tableName) {
         });
         
         const data = await response.json();
+        console.log('Query response:', data);
         
         if (data.success) {
             if (data.rows.length > 0) {
