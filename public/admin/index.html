@@ -100,6 +100,12 @@
                             <button class="btn" onclick="runQuery('SELECT c.*, COUNT(man.id) as mt5_accounts FROM clients c LEFT JOIN mt5_account_names man ON c.id = man.client_id GROUP BY c.id;')">
                                 <i class="fas fa-chart-bar"></i> Client Stats
                             </button>
+                            <button class="btn" onclick="loadTable('client_eas')">
+                                <i class="fas fa-link"></i> Client-EA Assignments
+                            </button>
+                            <button class="btn" onclick="loadTable('mt5_account_names')">
+                                <i class="fas fa-user-tag"></i> MT5 Accounts
+                            </button>
                         </div>
                     </div>
                     <div class="result-area" id="clientsResult">
@@ -119,6 +125,9 @@
                             </button>
                             <button class="btn" onclick="runQuery('SELECT ea.*, COUNT(epa.id) as assigned_pairs FROM eas ea LEFT JOIN ea_pair_assignments epa ON ea.id = epa.ea_id GROUP BY ea.id;')">
                                 <i class="fas fa-link"></i> EA Assignments
+                            </button>
+                            <button class="btn" onclick="loadTable('ea_pair_assignments')">
+                                <i class="fas fa-project-diagram"></i> EA-Pair Assignments
                             </button>
                         </div>
                     </div>
@@ -167,6 +176,6 @@
         </div>
     </div>
 
-    <script src="/assets/js/admin.js"></script>
+    <script src="/assets/js/admin.js?v=2"></script>
 </body>
 </html>
