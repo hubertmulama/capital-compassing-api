@@ -93,10 +93,22 @@ function createTableHTML(rows, tableName = '') {
         
         // Add toggle button if table has state
         if (hasState && tableName) {
-            const isActive = row.state === 'active' || row.state === 'enabled';
-            const newState = isActive ? 'disabled' : (tableName === 'clients' ? 'active' : 'enabled');
-            const buttonText = isActive ? 'Disable' : 'Enable';
-            const buttonClass = isActive ? 'btn-danger' : 'btn-success';
+            // Determine correct state values for each table type
+            let isActive, newState, buttonText, buttonClass;
+            
+            if (tableName === 'clients') {
+                // Clients use 'active'/'inactive'
+                isActive = row.state === 'active';
+                newState = isActive ? 'inactive' : 'active';
+                buttonText = isActive ? 'Deactivate' : 'Activate';
+                buttonClass = isActive ? 'btn-danger' : 'btn-success';
+            } else {
+                // Other tables use 'enabled'/'disabled'
+                isActive = row.state === 'enabled';
+                newState = isActive ? 'disabled' : 'enabled';
+                buttonText = isActive ? 'Disable' : 'Enable';
+                buttonClass = isActive ? 'btn-danger' : 'btn-success';
+            }
             
             html += `<td>
                 <button class="btn-toggle ${buttonClass}" 
@@ -256,6 +268,9 @@ async function loadTable(tableName) {
                 LEFT JOIN trading_pairs tp ON epa.pair_id = tp.id
                 LIMIT 20;
             `;
+        } else if (tableName === 'trading_pairs') {
+            // Show only enabled trading pairs by default
+            query = `SELECT * FROM trading_pairs WHERE state = 'enabled' LIMIT 20;`;
         }
         
         const response = await fetch('/api/admin/data', {
@@ -269,6 +284,37 @@ async function loadTable(tableName) {
         if (data.success) {
             if (data.rows.length > 0) {
                 resultDiv.innerHTML = createTableHTML(data.rows, tableName);
+            } else {
+                resultDiv.innerHTML = '<div style="color: green;">✅ No data found</div>';
+            }
+        } else {
+            resultDiv.innerHTML = '<div style="color: red;">❌ Error: ' + data.error + '</div>';
+        }
+    } catch (error) {
+        resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
+    }
+}
+
+// Load all trading pairs (including disabled)
+async function loadAllTradingPairs() {
+    const resultDiv = document.getElementById('tradingResult');
+    if (!resultDiv) return;
+    
+    resultDiv.innerHTML = 'Loading...';
+    
+    try {
+        const query = `SELECT * FROM trading_pairs LIMIT 20;`;
+        const response = await fetch('/api/admin/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sql: query })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            if (data.rows.length > 0) {
+                resultDiv.innerHTML = createTableHTML(data.rows, 'trading_pairs');
             } else {
                 resultDiv.innerHTML = '<div style="color: green;">✅ No data found</div>';
             }
