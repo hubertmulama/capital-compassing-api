@@ -144,7 +144,10 @@
                         <h3>Trading Pairs</h3>
                         <div>
                             <button class="btn" onclick="loadTable('trading_pairs')">
-                                <i class="fas fa-sync"></i> Load Pairs
+                                <i class="fas fa-sync"></i> Load Enabled Pairs
+                            </button>
+                            <button class="btn" onclick="loadAllTradingPairs()">
+                                <i class="fas fa-list"></i> Load All Pairs
                             </button>
                             <button class="btn" onclick="runQuery('SELECT category, COUNT(*) as count FROM trading_pairs GROUP BY category;')">
                                 <i class="fas fa-chart-pie"></i> By Category
@@ -152,7 +155,7 @@
                         </div>
                     </div>
                     <div class="result-area" id="tradingResult">
-                        Click "Load Pairs" to view trading pairs data
+                        Click "Load Enabled Pairs" to view trading pairs data
                     </div>
                 </div>
             </div>
@@ -176,6 +179,6 @@
         </div>
     </div>
 
-    <script src="/assets/js/admin.js?v=2"></script>
+    <script src="/assets/js/admin.js?v=3"></script>
 </body>
 </html>
