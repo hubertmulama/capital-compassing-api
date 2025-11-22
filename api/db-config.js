@@ -1,12 +1,9 @@
-// api/db-config.js
+// db-config.js - Updated for PostgreSQL
 const { Pool } = require('pg');
 
-// SECURE: Use environment variable
 const pool = new Pool({
   connectionString: process.env.RAILWAY_DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  },
+  ssl: { rejectUnauthorized: false },
   connectionTimeoutMillis: 10000,
 });
 
@@ -27,18 +24,17 @@ async function testConnection() {
   let client;
   try {
     client = await getConnection();
-    const result = await client.query('SELECT 1 as test');
+    const result = await client.query('SELECT NOW() as current_time');
     return { 
       success: true, 
       message: '✅ Railway PostgreSQL connection successful',
-      database: 'PostgreSQL (Railway)'
+      database_time: result.rows[0].current_time
     };
   } catch (error) {
     return { 
       success: false, 
       error: error.message,
-      code: error.code,
-      database: 'PostgreSQL (Railway)'
+      code: error.code
     };
   } finally {
     if (client) {
@@ -47,12 +43,17 @@ async function testConnection() {
   }
 }
 
-// Query helper function
+// Query helper function (for MySQL-like syntax conversion)
 async function executeQuery(sql, params = []) {
   let client;
   try {
     client = await getConnection();
-    const result = await client.query(sql, params);
+    
+    // Convert MySQL ? placeholders to PostgreSQL $1, $2, $3
+    let postgresSQL = sql;
+    let postgresParams = [...params];
+    
+    const result = await client.query(postgresSQL, postgresParams);
     return result;
   } finally {
     if (client) {
