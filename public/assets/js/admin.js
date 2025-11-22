@@ -112,7 +112,7 @@ function createTableHTML(rows, tableName = '') {
             
             html += `<td>
                 <button class="btn-toggle ${buttonClass}" 
-                        onclick="toggleState('${tableName}', ${row.id}, '${newState}')"
+                        onclick="toggleState('${tableName}', ${row.id}, '${newState}', '${tableName}')"
                         data-id="${row.id}"
                         data-table="${tableName}">
                     ${buttonText}
@@ -126,8 +126,8 @@ function createTableHTML(rows, tableName = '') {
     return html;
 }
 
-// Toggle state function with parameterized queries
-async function toggleState(tableName, id, newState) {
+// Toggle state function with parameterized queries and auto-refresh
+async function toggleState(tableName, id, newState, originalTableName) {
     console.log(`Toggling ${tableName} ID ${id} to ${newState}`);
     
     try {
@@ -144,13 +144,45 @@ async function toggleState(tableName, id, newState) {
         
         if (data.success) {
             showNotification(`✅ ${tableName} ${id} ${newState} successfully!`, 'success');
-            // Reload the current table to reflect changes
-            reloadCurrentTable();
+            
+            // Auto-refresh the current table data immediately
+            await reloadCurrentTableData();
+            
         } else {
             showNotification(`❌ Error: ${data.error}`, 'error');
         }
     } catch (error) {
-        showNotification(`❌ Request failed: ${data.error}`, 'error');
+        showNotification(`❌ Request failed: ${error.message}`, 'error');
+    }
+}
+
+// Auto-refresh current table data after state change
+async function reloadCurrentTableData() {
+    const activeTab = document.querySelector('.nav-item.active');
+    if (!activeTab) return;
+    
+    const tabId = activeTab.getAttribute('data-tab');
+    console.log('Auto-refreshing tab:', tabId);
+    
+    // Map tab IDs to table names and their result elements
+    const tabToTable = {
+        'clients': { table: 'clients', element: 'clientsResult' },
+        'eas': { table: 'eas', element: 'easResult' },
+        'trading': { table: 'trading_pairs', element: 'tradingResult' }
+    };
+    
+    const currentTab = tabToTable[tabId];
+    if (currentTab) {
+        // Show loading state
+        const resultDiv = document.getElementById(currentTab.element);
+        if (resultDiv) {
+            resultDiv.innerHTML = 'Updating...';
+        }
+        
+        // Reload the table data after a short delay
+        setTimeout(async () => {
+            await loadTable(currentTab.table);
+        }, 300);
     }
 }
 
@@ -195,26 +227,6 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Reload current table after state change
-function reloadCurrentTable() {
-    const activeTab = document.querySelector('.nav-item.active');
-    if (activeTab) {
-        const tabId = activeTab.getAttribute('data-tab');
-        
-        // Map tab IDs to table names
-        const tabToTable = {
-            'clients': 'clients',
-            'eas': 'eas',
-            'trading': 'trading_pairs'
-        };
-        
-        const tableName = tabToTable[tabId];
-        if (tableName) {
-            setTimeout(() => loadTable(tableName), 500);
-        }
-    }
-}
-
 // Load table data with enhanced display
 async function loadTable(tableName) {
     console.log('loadTable called with:', tableName);
@@ -242,7 +254,7 @@ async function loadTable(tableName) {
     resultDiv.innerHTML = 'Loading...';
     
     try {
-        let query = `SELECT * FROM ${tableName} ORDER BY id LIMIT 20;`; // Added ORDER BY for consistency
+        let query = `SELECT * FROM ${tableName} ORDER BY id LIMIT 20;`;
         
         // Special queries for joined tables
         if (tableName === 'client_eas') {
@@ -269,7 +281,6 @@ async function loadTable(tableName) {
                 ORDER BY epa.id LIMIT 20;
             `;
         }
-        // IMPORTANT: Trading pairs now shows ALL pairs without filtering
         
         console.log('Executing query:', query);
         const response = await fetch('/api/admin/data', {
