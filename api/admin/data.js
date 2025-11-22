@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { sql } = req.body;
+    const { sql, params = [] } = req.body;
 
     if (!sql) {
       return res.status(400).json({ 
@@ -26,21 +26,51 @@ module.exports = async function handler(req, res) {
 
     // Basic security check - prevent destructive operations in demo
     const lowerSql = sql.toLowerCase().trim();
-    if (lowerSql.startsWith('drop') || 
-        lowerSql.startsWith('delete from') || 
-        lowerSql.startsWith('truncate') ||
-        lowerSql.startsWith('alter') ||
-        lowerSql.startsWith('update') ||
-        lowerSql.startsWith('insert')) {
+    const restrictedPatterns = [
+      /drop\s+table/i,
+      /drop\s+database/i,
+      /truncate\s+table/i,
+      /delete\s+from\s+\w+\s+where\s+1=1/i,
+      /delete\s+from\s+\w+\s+where\s+true/i,
+      /alter\s+table/i
+    ];
+
+    // Allow UPDATE and INSERT operations for state management
+    // But block other destructive operations
+    if (restrictedPatterns.some(pattern => pattern.test(lowerSql))) {
       return res.status(400).json({ 
         success: false, 
         error: 'This operation is restricted in demo mode' 
       });
     }
 
-    console.log('Admin SQL Query:', sql);
+    // Additional security: Only allow UPDATE/INSERT on specific tables for state management
+    const allowedTables = ['clients', 'eas', 'trading_pairs', 'client_eas', 'mt5_account_names', 'ea_pair_assignments'];
     
-    const result = await executeQuery(sql);
+    if (lowerSql.startsWith('update') || lowerSql.startsWith('insert')) {
+      const tableMatch = lowerSql.match(/(?:update|insert into)\s+(\w+)/i);
+      if (tableMatch && !allowedTables.includes(tableMatch[1])) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Operation not allowed on this table' 
+        });
+      }
+      
+      // For UPDATE, only allow state changes
+      if (lowerSql.startsWith('update')) {
+        const safeUpdatePattern = /update\s+\w+\s+set\s+state\s*=\s*\$\d+/i;
+        if (!safeUpdatePattern.test(lowerSql)) {
+          return res.status(400).json({ 
+            success: false, 
+            error: 'Only state updates are allowed in demo mode' 
+          });
+        }
+      }
+    }
+
+    console.log('Admin SQL Query:', sql, 'Params:', params);
+    
+    const result = await executeQuery(sql, params);
     
     res.json({
       success: true,
