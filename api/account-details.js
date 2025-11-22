@@ -1,4 +1,4 @@
-import { getConnection } from './db-config.js';
+import { getConnection, executeQuery } from './db-config.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -59,19 +59,17 @@ export default async function handler(req, res) {
       });
     }
 
-    let connection = await getConnection();
     console.log('Database connected');
 
-    // Get the MT5 name ID
-    const [mt5Rows] = await connection.execute(
-      `SELECT id FROM mt5_account_names WHERE mt5_name = ?`,
+    // Get the MT5 name ID - PostgreSQL syntax
+    const mt5Result = await executeQuery(
+      `SELECT id FROM mt5_account_names WHERE mt5_name = $1`,
       [mt5_name]
     );
 
-    console.log('MT5 query result:', mt5Rows);
+    console.log('MT5 query result:', mt5Result.rows);
 
-    if (mt5Rows.length === 0) {
-      await connection.end();
+    if (mt5Result.rows.length === 0) {
       console.log('MT5 name not found:', mt5_name);
       return res.status(404).json({
         success: false,
@@ -79,39 +77,37 @@ export default async function handler(req, res) {
       });
     }
 
-    const mt5_name_id = mt5Rows[0].id;
+    const mt5_name_id = mt5Result.rows[0].id;
     console.log('Found MT5 name ID:', mt5_name_id);
 
     // Check if this specific MT5 name + account number combination exists
-    const [existingRows] = await connection.execute(
-      `SELECT id FROM account_details WHERE mt5_name_id = ? AND account_number = ?`,
+    const existingResult = await executeQuery(
+      `SELECT id FROM account_details WHERE mt5_name_id = $1 AND account_number = $2`,
       [mt5_name_id, account_number]
     );
 
-    console.log('Existing account check:', existingRows);
+    console.log('Existing account check:', existingResult.rows);
 
-    if (existingRows.length > 0) {
+    if (existingResult.rows.length > 0) {
       // Update existing record for this MT5 name + account number
       console.log('Updating existing account record');
-      await connection.execute(
+      await executeQuery(
         `UPDATE account_details 
-         SET balance=?, equity=?, margin=?, free_margin=?, leverage=?, updated_at=NOW()
-         WHERE mt5_name_id = ? AND account_number = ?`,
+         SET balance=$1, equity=$2, margin=$3, free_margin=$4, leverage=$5, updated_at=CURRENT_TIMESTAMP
+         WHERE mt5_name_id = $6 AND account_number = $7`,
         [balance, equity, margin, free_margin, leverage, mt5_name_id, account_number]
       );
       console.log('Existing account updated');
     } else {
       // Insert new record - same account number but different MT5 name is allowed
       console.log('Inserting new account record');
-      await connection.execute(
+      await executeQuery(
         `INSERT INTO account_details (mt5_name_id, account_number, balance, equity, margin, free_margin, leverage) 
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [mt5_name_id, account_number, balance, equity, margin, free_margin, leverage]
       );
       console.log('New account record inserted');
     }
-
-    await connection.end();
 
     console.log('SUCCESS: Account details processed');
     return res.status(200).json({
