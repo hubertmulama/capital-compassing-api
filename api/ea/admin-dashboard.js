@@ -1,4 +1,4 @@
-const { executeQuery } = require('./db-config.js');
+const { executeQuery } = require('../db-config.js');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'POST') {
