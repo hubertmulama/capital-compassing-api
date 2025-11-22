@@ -1,6 +1,7 @@
 {
   "name": "capital-compassing-api",
   "version": "1.0.0",
+  "type": "commonjs",
   "dependencies": {
     "mysql2": "^3.11.0",
     "pg": "^8.11.3"
