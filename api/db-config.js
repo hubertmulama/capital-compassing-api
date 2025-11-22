@@ -1,44 +1,66 @@
-import mysql from 'mysql2/promise';
+// db-config.js - TEMPORARY FOR TESTING (PostgreSQL Version)
+import pkg from 'pg';
+const { Pool } = pkg;
 
-const dbConfig = {
-  host: "sql.freedb.tech",
-  user: "freedb_Hubert_mulama", 
-  password: "#?wqa5T4m5GB%JB",
-  database: "freedb_Capital compassing",
-  connectTimeout: 10000,  // Only use connectTimeout
-  // Remove timeout and acquireTimeout - they're not valid for createConnection
-};
+// TEMPORARY - Hardcoded for testing (REMOVE LATER)
+const pool = new Pool({
+  connectionString: 'postgresql://postgres:OcRAYwNRkXZAEOVTjYIKpxYMWUdNVbMI@maglev.proxy.rlwy.net:40211/railway',
+  ssl: {
+    rejectUnauthorized: false
+  },
+  connectionTimeoutMillis: 10000, // PostgreSQL equivalent
+});
 
 // Create connection function
 export async function getConnection() {
   try {
-    const connection = await mysql.createConnection(dbConfig);
-    console.log('Database connection established');
-    return connection;
+    const client = await pool.connect();
+    console.log('✅ Database connection established to Railway PostgreSQL');
+    return client;
   } catch (error) {
-    console.error('Database connection failed:', error.message);
+    console.error('❌ Database connection failed:', error.message);
     throw error;
   }
 }
 
-// Rest of your code remains the same...
+// Test connection function (updated for PostgreSQL)
 export async function testConnection() {
-  let connection;
+  let client;
   try {
-    connection = await getConnection();
-    const [results] = await connection.execute('SELECT 1 as test');
-    return { success: true, message: 'Database connection successful' };
+    client = await getConnection();
+    const result = await client.query('SELECT 1 as test');
+    return { 
+      success: true, 
+      message: '✅ Railway PostgreSQL connection successful',
+      database: 'PostgreSQL (Railway)'
+    };
   } catch (error) {
     return { 
       success: false, 
       error: error.message,
-      code: error.code 
+      code: error.code,
+      database: 'PostgreSQL (Railway)'
     };
   } finally {
-    if (connection) {
-      await connection.end().catch(console.error);
+    if (client) {
+      client.release(); // PostgreSQL uses release() instead of end()
     }
   }
 }
 
-export { dbConfig };
+// Query helper function (similar to your MySQL execute)
+export async function executeQuery(sql, params = []) {
+  let client;
+  try {
+    client = await getConnection();
+    const result = await client.query(sql, params);
+    return result;
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
+}
+
+// For direct pool queries (more efficient for multiple queries)
+export { pool };
