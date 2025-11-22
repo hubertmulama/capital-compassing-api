@@ -1,9 +1,9 @@
 // api/db-config.js
 const { Pool } = require('pg');
 
-// TEMPORARY - Hardcoded for testing
+// SECURE: Use environment variable
 const pool = new Pool({
-  connectionString: 'postgresql://postgres:OcRAYwNRkXZAEOVTjYIKpxYMWUdNVbMI@maglev.proxy.rlwy.net:40211/railway',
+  connectionString: process.env.RAILWAY_DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
   },
