@@ -1,4 +1,4 @@
-import { getConnection } from './db-config.js';
+import { executeQuery } from './db-config.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -23,26 +23,21 @@ export default async function handler(req, res) {
     });
   }
 
-  let connection;
   try {
-    connection = await getConnection();
-
     // Query the trading_pairs table for the specific pair
-    const [pairRows] = await connection.execute(
-      `SELECT * FROM trading_pairs WHERE pair = ?`,
+    const pairResult = await executeQuery(
+      `SELECT * FROM trading_pairs WHERE pair = $1`,
       [pair_name]
     );
 
-    await connection.end();
-
-    if (pairRows.length === 0) {
+    if (pairResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: 'Trading pair not found'
       });
     }
 
-    const pair = pairRows[0];
+    const pair = pairResult.rows[0];
 
     // Format the response
     return res.status(200).json({
@@ -58,9 +53,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Database error:', error);
-    if (connection) {
-      await connection.end().catch(console.error);
-    }
     return res.status(500).json({ 
       success: false,
       error: error.message 
