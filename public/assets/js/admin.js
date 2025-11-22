@@ -94,7 +94,7 @@ function createTableHTML(rows, tableName = '') {
         // Add toggle button if table has state
         if (hasState && tableName) {
             const isActive = row.state === 'active' || row.state === 'enabled';
-            const newState = isActive ? 'disabled' : (tableName === 'clients' ? 'inactive' : 'enabled');
+            const newState = isActive ? 'disabled' : (tableName === 'clients' ? 'active' : 'enabled');
             const buttonText = isActive ? 'Disable' : 'Enable';
             const buttonClass = isActive ? 'btn-danger' : 'btn-success';
             
@@ -114,12 +114,9 @@ function createTableHTML(rows, tableName = '') {
     return html;
 }
 
-// Toggle state function
+// Toggle state function with parameterized queries
 async function toggleState(tableName, id, newState) {
     console.log(`Toggling ${tableName} ID ${id} to ${newState}`);
-    
-    // Determine the correct state column value based on table
-    let stateValue = newState;
     
     try {
         const response = await fetch('/api/admin/data', {
@@ -127,7 +124,7 @@ async function toggleState(tableName, id, newState) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 sql: `UPDATE ${tableName} SET state = $1 WHERE id = $2`,
-                params: [stateValue, id]
+                params: [newState, id]
             })
         });
         
