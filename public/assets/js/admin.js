@@ -1,30 +1,47 @@
 // Mobile menu toggle
 function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('active');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+    }
 }
 
 // Tab navigation
-document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', function() {
-        // Remove active class from all
-        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        
-        // Add active class to clicked
-        this.classList.add('active');
-        const tabId = this.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
-        
-        // Close mobile menu
-        document.getElementById('sidebar').classList.remove('active');
+function initializeTabs() {
+    const navItems = document.querySelectorAll('.nav-item');
+    if (navItems.length === 0) return;
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Remove active class from all
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to clicked
+            this.classList.add('active');
+            const tabId = this.getAttribute('data-tab');
+            const tabContent = document.getElementById(tabId);
+            if (tabContent) {
+                tabContent.classList.add('active');
+            }
+            
+            // Close mobile menu
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('active');
+            }
+        });
     });
-});
+}
 
 // Run SQL query
 async function runQuery(customQuery = null) {
-    const sql = customQuery || document.getElementById('sqlEditor').value;
+    const sqlEditor = document.getElementById('sqlEditor');
     const resultDiv = document.getElementById('sqlResult');
     
+    if (!resultDiv) return;
+    
+    const sql = customQuery || (sqlEditor ? sqlEditor.value : '');
     resultDiv.innerHTML = 'Running query...';
     
     try {
@@ -78,16 +95,21 @@ function createTableHTML(rows) {
 
 // Load table data
 async function loadTable(tableName) {
-    const resultDiv = document.getElementById(tableName.replace('_', '') + 'Result');
-    resultDiv.innerHTML = 'Loading...';
+    const elementId = tableName.replace('_', '') + 'Result';
+    const resultDiv = document.getElementById(elementId);
+    if (!resultDiv) return;
     
+    resultDiv.innerHTML = 'Loading...';
     await runQuery('SELECT * FROM ' + tableName + ' LIMIT 20;');
 }
 
 // Load dashboard stats
 async function refreshStats() {
     const statsGrid = document.getElementById('statsGrid');
+    if (!statsGrid) return;
+    
     const statCards = statsGrid.querySelectorAll('.stat-number');
+    if (statCards.length === 0) return;
     
     // Show loading
     statCards.forEach(card => card.textContent = '...');
@@ -110,7 +132,7 @@ async function refreshStats() {
         
         // Update stats
         results.forEach((result, index) => {
-            if (result.success) {
+            if (result.success && statCards[index]) {
                 statCards[index].textContent = result.rows[0].count;
             }
         });
@@ -120,7 +142,9 @@ async function refreshStats() {
     }
 }
 
-// Initialize dashboard
+// Initialize dashboard - wait for full page load
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Admin dashboard initialized');
+    initializeTabs();
     refreshStats();
 });
