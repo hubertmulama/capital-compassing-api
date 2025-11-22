@@ -1,6 +1,6 @@
-import { executeQuery } from './db-config.js';
+const { executeQuery } = require('./db-config.js');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method === 'POST') {
     // Handle SQL queries
     try {
@@ -228,4 +228,4 @@ export default async function handler(req, res) {
 </html>
     `);
   }
-}
+};
