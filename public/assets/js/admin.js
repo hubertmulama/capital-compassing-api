@@ -94,7 +94,7 @@ function createTableHTML(rows, tableName = '') {
         // Add toggle button if table has state
         if (hasState && tableName) {
             const isActive = row.state === 'active' || row.state === 'enabled';
-            const newState = isActive ? 'disabled' : 'enabled';
+            const newState = isActive ? 'disabled' : (tableName === 'clients' ? 'inactive' : 'enabled');
             const buttonText = isActive ? 'Disable' : 'Enable';
             const buttonClass = isActive ? 'btn-danger' : 'btn-success';
             
@@ -126,7 +126,7 @@ async function toggleState(tableName, id, newState) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                sql: `UPDATE ${tableName} SET state = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`,
+                sql: `UPDATE ${tableName} SET state = $1 WHERE id = $2`,
                 params: [stateValue, id]
             })
         });
@@ -215,9 +215,9 @@ async function loadTable(tableName) {
         'clients': 'clientsResult',
         'eas': 'easResult', 
         'trading_pairs': 'tradingResult',
-        'client_eas': 'clientsResult', // Will show in Clients tab
-        'mt5_account_names': 'clientsResult', // Will show in Clients tab
-        'ea_pair_assignments': 'easResult' // Will show in EAs tab
+        'client_eas': 'clientsResult',
+        'mt5_account_names': 'clientsResult',
+        'ea_pair_assignments': 'easResult'
     };
     
     const elementId = elementMap[tableName];
