@@ -1,4 +1,4 @@
-import { executeQuery } from './db-config.js';
+import { executeQuery } from '../db-config.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
