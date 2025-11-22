@@ -95,9 +95,21 @@ function createTableHTML(rows) {
 
 // Load table data - FIXED VERSION
 async function loadTable(tableName) {
-    // FIX: Use global regex to replace ALL underscores, not just the first one
-    const elementId = tableName.replace(/_/g, '') + 'Result';
+    console.log('loadTable called with:', tableName);
+    
+    // Map table names to their correct element IDs
+    const elementMap = {
+        'clients': 'clientsResult',
+        'eas': 'easResult', 
+        'trading_pairs': 'tradingResult', // CORRECT ID
+        'trading_pair': 'tradingResult'
+    };
+    
+    const elementId = elementMap[tableName];
+    console.log('Looking for element:', elementId);
+    
     const resultDiv = document.getElementById(elementId);
+    
     if (!resultDiv) {
         console.error('Element not found:', elementId);
         return;
