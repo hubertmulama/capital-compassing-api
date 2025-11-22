@@ -95,7 +95,8 @@ function createTableHTML(rows) {
 
 // Load table data - FIXED VERSION
 async function loadTable(tableName) {
-    const elementId = tableName.replace('_', '') + 'Result';
+    // FIX: Use global regex to replace ALL underscores, not just the first one
+    const elementId = tableName.replace(/_/g, '') + 'Result';
     const resultDiv = document.getElementById(elementId);
     if (!resultDiv) {
         console.error('Element not found:', elementId);
