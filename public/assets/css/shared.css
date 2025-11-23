@@ -147,3 +147,44 @@
     justify-content: center;
     padding: 1rem;
 }
+
+/* Registration Specific Styles */
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+.strength-bar {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.checkbox-label input {
+    margin-top: 0.2rem;
+}
+
+.checkbox-label a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.checkbox-label a:hover {
+    text-decoration: underline;
+}
