@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Capital Compassing</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/assets/css/shared.css" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <div class="login-container">
+        <div class="login-header">
+            <h1><i class="fas fa-chart-line"></i> Capital Compassing</h1>
+            <p>Login to your account</p>
+        </div>
+
+        <div class="login-form">
+            <div id="alertMessage" class="alert hidden"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group password-toggle">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-btn" onclick="togglePassword()">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="btn" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+
+            <div class="login-links">
+                <p>Don't have an account? <a href="/register.html">Register here</a></p>
+                <p><a href="/forgot-password.html">Forgot your password?</a></p>
+                <p><a href="/">← Back to Home</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password visibility toggle
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('.toggle-btn i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fas fa-eye';
+            }
+        }
+
+        // Show alert message
+        function showAlert(message, type = 'error') {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.classList.remove('hidden');
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Basic validation
+            if (!email || !password) {
+                showAlert('Please fill in all fields');
+                return;
+            }
+
+            // Show loading state
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            loginBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Login successful! Redirecting...', 'success');
+                    
+                    // Store session data
+                    localStorage.setItem('sessionToken', data.session.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Redirect based on user role
+                    setTimeout(() => {
+                        if (data.user.role === 'admin' || data.user.role === 'staff') {
+                            window.location.href = '/admin/';
+                        } else {
+                            window.location.href = '/clients/dashboard.html';
+                        }
+                    }, 1000);
+                    
+                } else {
+                    showAlert(data.error || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showAlert('Network error. Please try again.');
+            } finally {
+                // Reset button
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                loginBtn.disabled = false;
+            }
+        });
+
+        // Check if user is already logged in
+        function checkExistingSession() {
+            const sessionToken = localStorage.getItem('sessionToken');
+            const user = localStorage.getItem('user');
+            
+            if (sessionToken && user) {
+                // Verify session is still valid
+                verifySession(sessionToken);
+            }
+        }
+
+        // Verify existing session
+        async function verifySession(sessionToken) {
+            try {
+                // We'll implement proper session verification later
+                // For now, just check if we have a stored user
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user) {
+                    showAlert('Welcome back! Redirecting...', 'success');
+                    setTimeout(() => {
+                        if (user.role === 'admin' || user.role === 'staff') {
+                            window.location.href = '/admin/';
+                        } else {
+                            window.location.href = '/clients/dashboard.html';
+                        }
+                    }, 1000);
+                }
+            } catch (error) {
+                // Session is invalid, clear storage
+                localStorage.removeItem('sessionToken');
+                localStorage.removeItem('user');
+            }
+        }
+
+        // Check for existing session on page load
+        document.addEventListener('DOMContentLoaded', checkExistingSession);
+    </script>
+</body>
+</html>
