@@ -112,7 +112,7 @@ function createTableHTML(rows, tableName = '') {
             
             html += `<td>
                 <button class="btn-toggle ${buttonClass}" 
-                        onclick="toggleState('${tableName}', ${row.id}, '${newState}', '${tableName}')"
+                        onclick="toggleState('${tableName}', ${row.id}, '${newState}')"
                         data-id="${row.id}"
                         data-table="${tableName}">
                     ${buttonText}
@@ -127,7 +127,7 @@ function createTableHTML(rows, tableName = '') {
 }
 
 // Toggle state function with parameterized queries and auto-refresh
-async function toggleState(tableName, id, newState, originalTableName) {
+async function toggleState(tableName, id, newState) {
     console.log(`Toggling ${tableName} ID ${id} to ${newState}`);
     
     try {
@@ -143,7 +143,7 @@ async function toggleState(tableName, id, newState, originalTableName) {
         const data = await response.json();
         
         if (data.success) {
-            showNotification(`✅ ${tableName} ${id} ${newState} successfully!`, 'success');
+            showNotification(`✅ ${tableName} ID ${id} ${newState} successfully!`, 'success');
             
             // Auto-refresh the current table data immediately
             await reloadCurrentTableData();
@@ -159,30 +159,43 @@ async function toggleState(tableName, id, newState, originalTableName) {
 // Auto-refresh current table data after state change
 async function reloadCurrentTableData() {
     const activeTab = document.querySelector('.nav-item.active');
-    if (!activeTab) return;
+    if (!activeTab) {
+        console.log('No active tab found');
+        return;
+    }
     
     const tabId = activeTab.getAttribute('data-tab');
-    console.log('Auto-refreshing tab:', tabId);
+    console.log('Auto-refreshing active tab:', tabId);
     
-    // Map tab IDs to table names and their result elements
+    // Map tab IDs to table names
     const tabToTable = {
-        'clients': { table: 'clients', element: 'clientsResult' },
-        'eas': { table: 'eas', element: 'easResult' },
-        'trading': { table: 'trading_pairs', element: 'tradingResult' }
+        'clients': 'clients',
+        'eas': 'eas',
+        'trading': 'trading_pairs'
     };
     
-    const currentTab = tabToTable[tabId];
-    if (currentTab) {
-        // Show loading state
-        const resultDiv = document.getElementById(currentTab.element);
+    const tableName = tabToTable[tabId];
+    if (tableName) {
+        console.log('Reloading table:', tableName);
+        
+        // Show loading state in the appropriate result area
+        const elementMap = {
+            'clients': 'clientsResult',
+            'eas': 'easResult', 
+            'trading_pairs': 'tradingResult'
+        };
+        
+        const resultDiv = document.getElementById(elementMap[tableName]);
         if (resultDiv) {
             resultDiv.innerHTML = 'Updating...';
         }
         
-        // Reload the table data after a short delay
-        setTimeout(async () => {
-            await loadTable(currentTab.table);
-        }, 300);
+        // Wait a moment for the database to update, then reload
+        setTimeout(() => {
+            loadTable(tableName);
+        }, 500);
+    } else {
+        console.log('No table mapping found for tab:', tabId);
     }
 }
 
