@@ -26,7 +26,7 @@
                 <div class="form-group password-toggle">
                     <label for="password">Password</label>
                     <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
-                    <button type="button" class="toggle-btn" onclick="togglePassword()">
+                    <button type="button" class="toggle-btn" onclick="togglePassword('password')">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
@@ -44,36 +44,8 @@
         </div>
     </div>
 
+    <script src="/assets/js/auth.js"></script>
     <script>
-        // Password visibility toggle
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.querySelector('.toggle-btn i');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.className = 'fas fa-eye-slash';
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.className = 'fas fa-eye';
-            }
-        }
-
-        // Show alert message
-        function showAlert(message, type = 'error') {
-            const alertDiv = document.getElementById('alertMessage');
-            alertDiv.textContent = message;
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.classList.remove('hidden');
-            
-            // Auto-hide success messages after 5 seconds
-            if (type === 'success') {
-                setTimeout(() => {
-                    alertDiv.classList.add('hidden');
-                }, 5000);
-            }
-        }
-
         // Handle login form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -134,40 +106,6 @@
                 loginBtn.disabled = false;
             }
         });
-
-        // Check if user is already logged in
-        function checkExistingSession() {
-            const sessionToken = localStorage.getItem('sessionToken');
-            const user = localStorage.getItem('user');
-            
-            if (sessionToken && user) {
-                // Verify session is still valid
-                verifySession(sessionToken);
-            }
-        }
-
-        // Verify existing session
-        async function verifySession(sessionToken) {
-            try {
-                // We'll implement proper session verification later
-                // For now, just check if we have a stored user
-                const user = JSON.parse(localStorage.getItem('user'));
-                if (user) {
-                    showAlert('Welcome back! Redirecting...', 'success');
-                    setTimeout(() => {
-                        if (user.role === 'admin' || user.role === 'staff') {
-                            window.location.href = '/admin/';
-                        } else {
-                            window.location.href = '/clients/dashboard.html';
-                        }
-                    }, 1000);
-                }
-            } catch (error) {
-                // Session is invalid, clear storage
-                localStorage.removeItem('sessionToken');
-                localStorage.removeItem('user');
-            }
-        }
 
         // Check for existing session on page load
         document.addEventListener('DOMContentLoaded', checkExistingSession);
