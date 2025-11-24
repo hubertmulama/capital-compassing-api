@@ -1,5 +1,5 @@
 import { executeQuery } from './db-config.js';
-import { hashPassword, generateToken, validatePassword } from './auth-config.js';
+import { hashPassword, generateToken, validatePassword, verifyPassword } from './auth-config.js';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   }
 }
 
-// Registration handler - SIMPLIFIED VERSION
+// Registration handler - SIMPLIFIED VERSION (users table only)
 async function handleRegister(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -118,7 +118,7 @@ async function handleRegister(req, res) {
   }
 }
 
-// Login handler (should also be updated if it references clients)
+// Login handler
 async function handleLogin(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -160,6 +160,14 @@ async function handleLogin(req, res) {
       });
     }
 
+    // Check if account is inactive
+    if (user.state === 'inactive') {
+      return res.status(423).json({
+        success: false,
+        error: 'Account is inactive. Please contact support.'
+      });
+    }
+
     // Verify password
     const isPasswordValid = await verifyPassword(password, user.password_hash);
     if (!isPasswordValid) {
@@ -175,6 +183,11 @@ async function handleLogin(req, res) {
           'UPDATE users SET is_locked = true WHERE id = $1',
           [user.id]
         );
+        
+        return res.status(423).json({
+          success: false,
+          error: 'Account has been locked due to too many failed login attempts. Please contact support.'
+        });
       }
 
       return res.status(401).json({
@@ -194,7 +207,7 @@ async function handleLogin(req, res) {
     const sessionExpiry = new Date();
     sessionExpiry.setDate(sessionExpiry.getDate() + 30); // 30 days
 
-    // Store session (you'll need to implement sessions table)
+    // Store session in sessions table
     await executeQuery(
       `INSERT INTO sessions (user_id, session_token, expires_at) 
        VALUES ($1, $2, $3)`,
@@ -225,10 +238,162 @@ async function handleLogin(req, res) {
   }
 }
 
-// Note: You'll need to add verifyPassword to your auth-config.js
-// or import it if it already exists
-async function verifyPassword(password, hash) {
-  // This should be in your auth-config.js, adding here for completeness
-  const { verifyPassword } = await import('./auth-config.js');
-  return verifyPassword(password, hash);
+// Logout handler (optional - for future use)
+async function handleLogout(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { session_token } = req.body;
+
+  if (!session_token) {
+    return res.status(400).json({
+      success: false,
+      error: 'Session token is required'
+    });
+  }
+
+  try {
+    // Delete session from sessions table
+    await executeQuery(
+      'DELETE FROM sessions WHERE session_token = $1',
+      [session_token]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Logout successful'
+    });
+
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Logout failed: ' + error.message
+    });
+  }
+}
+
+// Password reset request handler (optional - for future use)
+async function handlePasswordResetRequest(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      error: 'Email is required'
+    });
+  }
+
+  try {
+    // Check if user exists
+    const userResult = await executeQuery(
+      'SELECT id, email FROM users WHERE email = $1',
+      [email.toLowerCase()]
+    );
+
+    if (userResult.rows.length === 0) {
+      // Don't reveal whether email exists or not
+      return res.status(200).json({
+        success: true,
+        message: 'If an account with that email exists, a password reset link has been sent.'
+      });
+    }
+
+    const user = userResult.rows[0];
+    const resetToken = generateToken();
+    const resetTokenExpiry = new Date();
+    resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1); // 1 hour expiry
+
+    // Store reset token in database
+    await executeQuery(
+      'UPDATE users SET reset_token = $1, reset_token_expiry = $2 WHERE id = $3',
+      [resetToken, resetTokenExpiry, user.id]
+    );
+
+    // In a real application, you would send an email here
+    console.log('Password reset token for', email, ':', resetToken);
+
+    res.status(200).json({
+      success: true,
+      message: 'If an account with that email exists, a password reset link has been sent.'
+    });
+
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Password reset request failed: ' + error.message
+    });
+  }
+}
+
+// Password reset handler (optional - for future use)
+async function handlePasswordReset(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { token, new_password } = req.body;
+
+  if (!token || !new_password) {
+    return res.status(400).json({
+      success: false,
+      error: 'Token and new password are required'
+    });
+  }
+
+  // Validate password strength
+  const passwordValidation = validatePassword(new_password);
+  if (!passwordValidation.valid) {
+    return res.status(400).json({
+      success: false,
+      error: passwordValidation.message
+    });
+  }
+
+  try {
+    // Find user by reset token
+    const userResult = await executeQuery(
+      `SELECT id, reset_token_expiry 
+       FROM users 
+       WHERE reset_token = $1 AND reset_token_expiry > NOW()`,
+      [token]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired reset token'
+      });
+    }
+
+    const user = userResult.rows[0];
+    const newPasswordHash = await hashPassword(new_password);
+
+    // Update password and clear reset token
+    await executeQuery(
+      `UPDATE users 
+       SET password_hash = $1, reset_token = NULL, reset_token_expiry = NULL, 
+           failed_login_attempts = 0, is_locked = false 
+       WHERE id = $2`,
+      [newPasswordHash, user.id]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successful. You can now login with your new password.'
+    });
+
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Password reset failed: ' + error.message
+    });
+  }
 }
