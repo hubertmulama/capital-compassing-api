@@ -13,68 +13,54 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ADD DEBUG LOGGING HERE
-  console.log('=== CLIENT-BASIC API CALL ===');
-  console.log('Full URL:', req.url);
+  console.log('=== USER-BASIC API CALL ===');
   console.log('Query parameters:', req.query);
-  console.log('Raw mt5_name from query:', req.query.mt5_name);
-  console.log('Type of mt5_name:', typeof req.query.mt5_name);
 
   let { mt5_name } = req.query;
 
   if (!mt5_name) {
-    console.log('ERROR: mt5_name is null or undefined');
     return res.status(400).json({ 
       success: false,
       error: 'Missing mt5_name parameter' 
     });
   }
 
-  console.log('mt5_name after extraction:', mt5_name);
-  console.log('mt5_name length:', mt5_name.length);
-
   try {
-    const clientResult = await executeQuery(
+    const userResult = await executeQuery(
       `SELECT 
-         c.id, c.name, c.email, c.state as client_state, c.created_at as client_created_at,
+         u.id, u.name, u.email, u.state, u.created_at,
          man.mt5_name, man.state as mt5_state, man.created_at as mt5_created_at
-       FROM clients c
-       INNER JOIN mt5_account_names man ON c.id = man.client_id
+       FROM users u
+       INNER JOIN mt5_account_names man ON u.id = man.user_id
        WHERE man.mt5_name = $1`,
       [mt5_name]
     );
 
-    console.log('Database query results:', clientResult.rows.length, 'rows found');
+    console.log('Database query results:', userResult.rows.length, 'rows found');
 
-    if (clientResult.rows.length === 0) {
+    if (userResult.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Client not found'
+        error: 'User not found'
       });
     }
 
-    const row = clientResult.rows[0];
+    const row = userResult.rows[0];
     
     const formatPostgresDate = (postgresDate) => {
       if (!postgresDate) return 'Unknown';
       const date = new Date(postgresDate);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      return date.toISOString().replace('T', ' ').substring(0, 19);
     };
 
     return res.status(200).json({
       success: true,
-      client: {
+      user: {
         id: row.id,
         name: row.name,
         email: row.email,
-        client_state: row.client_state,
-        client_created_at: formatPostgresDate(row.client_created_at),
+        state: row.state,
+        created_at: formatPostgresDate(row.created_at),
         mt5_name: row.mt5_name,
         mt5_state: row.mt5_state,
         mt5_created_at: formatPostgresDate(row.mt5_created_at)
