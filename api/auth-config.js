@@ -1,4 +1,4 @@
-// api/auth-config.js - Authentication configuration
+// auth-config.js - Authentication configuration
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
@@ -22,7 +22,7 @@ function generateToken(length = 32) {
 const SESSION_EXPIRY_DAYS = 30;
 function getSessionExpiry() {
     const expiry = new Date();
-    expiry.setDate(expiry.getDate() + SESSION_EXPIRY_DAYS);
+    expiry.setDate(expiry.getDate() + SESSION_EXPPIRY_DAYS);
     return expiry;
 }
 
