@@ -1,187 +1,166 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Capital Compassing</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="/assets/style.css" rel="stylesheet">
-</head>
-<body>
-    <div class="dashboard">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-chart-line"></i> Capital Compassing</h2>
-                <p>Admin Dashboard</p>
-            </div>
-            <div class="nav-links">
-                <div class="nav-item active" data-tab="overview">
-                    <i class="fas fa-home"></i> Overview
-                </div>
-                <div class="nav-item" data-tab="clients">
-                    <i class="fas fa-users"></i> Clients
-                </div>
-                <div class="nav-item" data-tab="eas">
-                    <i class="fas fa-robot"></i> Expert Advisors
-                </div>
-                <div class="nav-item" data-tab="trading">
-                    <i class="fas fa-chart-bar"></i> Trading Pairs
-                </div>
-                <div class="nav-item" data-tab="sql">
-                    <i class="fas fa-database"></i> SQL Query Tool
-                </div>
-                <div class="nav-item" onclick="logout()" style="margin-top: auto;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </div>
-            </div>
-        </div>
+<script>
+// Admin dashboard JavaScript - UPDATED FOR NEW SCHEMA
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="header">
-                <button class="mobile-menu" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i> Menu
-                </button>
-                <h1>Admin Dashboard</h1>
-                <button class="btn" onclick="refreshStats()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
+// Load dashboard stats - UPDATED
+async function refreshStats() {
+    const statsGrid = document.getElementById('statsGrid');
+    if (!statsGrid) return;
+    
+    const statCards = statsGrid.querySelectorAll('.stat-number');
+    if (statCards.length === 0) return;
+    
+    // Show loading
+    statCards.forEach(card => card.textContent = '...');
+    
+    try {
+        const queries = [
+            "SELECT COUNT(*) as count FROM users WHERE role = 'client'",  // Changed from clients
+            "SELECT COUNT(*) as count FROM eas",
+            "SELECT COUNT(*) as count FROM trading_pairs",
+            "SELECT COUNT(*) as count FROM account_details"
+        ];
+        
+        const results = await Promise.all(queries.map(query => 
+            fetch('/api/admin?action=data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sql: query })
+            }).then(r => r.json())
+        ));
+        
+        // Update stats
+        results.forEach((result, index) => {
+            if (result.success && statCards[index]) {
+                statCards[index].textContent = result.rows[0].count;
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}
 
-            <!-- Overview Tab -->
-            <div class="tab-content active" id="overview">
-                <div class="stats-grid" id="statsGrid">
-                    <div class="stat-card">
-                        <i class="fas fa-users"></i>
-                        <div class="stat-number">-</div>
-                        <div class="stat-label">Total Clients</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-robot"></i>
-                        <div class="stat-number">-</div>
-                        <div class="stat-label">Expert Advisors</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-chart-bar"></i>
-                        <div class="stat-number">-</div>
-                        <div class="stat-label">Trading Pairs</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-wallet"></i>
-                        <div class="stat-number">-</div>
-                        <div class="stat-label">Account Records</div>
-                    </div>
-                </div>
-                
-                <div class="content-area">
-                    <h3>Quick Actions</h3>
-                    <button class="btn" onclick="loadTable('clients')">
-                        <i class="fas fa-users"></i> View Clients
-                    </button>
-                    <button class="btn" onclick="loadTable('eas')">
-                        <i class="fas fa-robot"></i> View EAs
-                    </button>
-                    <button class="btn" onclick="loadTable('trading_pairs')">
-                        <i class="fas fa-chart-bar"></i> View Trading Pairs
-                    </button>
-                    <button class="btn" onclick="runQuery('SELECT * FROM account_details ORDER BY updated_at DESC LIMIT 10;')">
-                        <i class="fas fa-wallet"></i> Recent Accounts
-                    </button>
-                </div>
-            </div>
+// Load table data - UPDATED
+async function loadTable(tableName) {
+    console.log('Loading table:', tableName);
+    
+    const elementMap = {
+        'users': 'clientsResult',  // Now showing users instead of clients
+        'eas': 'easResult', 
+        'trading_pairs': 'tradingResult'
+    };
+    
+    const elementId = elementMap[tableName];
+    const resultDiv = document.getElementById(elementId);
+    
+    if (!resultDiv) {
+        console.error('Element not found:', elementId);
+        return;
+    }
+    
+    resultDiv.innerHTML = 'Loading...';
+    
+    try {
+        let query = `SELECT * FROM ${tableName} ORDER BY id LIMIT 20;`;
+        
+        // Special queries for joined tables - UPDATED
+        if (tableName === 'client_eas') {
+            query = `
+                SELECT ce.*, u.name as user_name, ea.name as ea_name 
+                FROM client_eas ce
+                LEFT JOIN users u ON ce.client_id = u.id
+                LEFT JOIN eas ea ON ce.ea_id = ea.id
+                ORDER BY ce.id LIMIT 20;
+            `;
+        } else if (tableName === 'mt5_account_names') {
+            query = `
+                SELECT man.*, u.name as user_name 
+                FROM mt5_account_names man
+                LEFT JOIN users u ON man.user_id = u.id
+                ORDER BY man.id LIMIT 20;
+            `;
+        } else if (tableName === 'ea_pair_assignments') {
+            query = `
+                SELECT epa.*, ea.name as ea_name, tp.pair as pair_name 
+                FROM ea_pair_assignments epa
+                LEFT JOIN eas ea ON epa.ea_id = ea.id
+                LEFT JOIN trading_pairs tp ON epa.pair_id = tp.id
+                ORDER BY epa.id LIMIT 20;
+            `;
+        } else if (tableName === 'users') {
+            query = `
+                SELECT id, name, email, role, state, created_at 
+                FROM users 
+                ORDER BY id LIMIT 20;
+            `;
+        }
+        
+        const response = await fetch('/api/admin?action=data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sql: query })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            if (data.rows.length > 0) {
+                resultDiv.innerHTML = createTableHTML(data.rows, tableName);
+            } else {
+                resultDiv.innerHTML = '<div style="color: green;">✅ No data found</div>';
+            }
+        } else {
+            resultDiv.innerHTML = '<div style="color: red;">❌ Error: ' + data.error + '</div>';
+        }
+    } catch (error) {
+        resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
+    }
+}
 
-            <!-- Clients Tab -->
-            <div class="tab-content" id="clients">
-                <div class="content-area">
-                    <div class="content-header">
-                        <h3>Clients Management</h3>
-                        <div>
-                            <button class="btn" onclick="loadTable('clients')">
-                                <i class="fas fa-sync"></i> Load Clients
-                            </button>
-                            <button class="btn" onclick="runQuery('SELECT c.*, COUNT(man.id) as mt5_accounts FROM clients c LEFT JOIN mt5_account_names man ON c.id = man.client_id GROUP BY c.id;')">
-                                <i class="fas fa-chart-bar"></i> Client Stats
-                            </button>
-                            <button class="btn" onclick="loadTable('client_eas')">
-                                <i class="fas fa-link"></i> Client-EA Assignments
-                            </button>
-                            <button class="btn" onclick="loadTable('mt5_account_names')">
-                                <i class="fas fa-user-tag"></i> MT5 Accounts
-                            </button>
-                        </div>
-                    </div>
-                    <div class="result-area" id="clientsResult">
-                        Click "Load Clients" to view client data
-                    </div>
-                </div>
-            </div>
+// Update the button handlers in the HTML - UPDATED
+function updateButtonHandlers() {
+    // Update the "View Clients" button to show users
+    const clientsBtn = document.querySelector('button[onclick="loadTable(\'clients\')"]');
+    if (clientsBtn) {
+        clientsBtn.setAttribute('onclick', "loadTable('users')");
+    }
+    
+    // Update the "Client Stats" button
+    const clientStatsBtn = document.querySelector('button[onclick*=\"client stats\"]');
+    if (clientStatsBtn) {
+        clientStatsBtn.setAttribute('onclick', `runQuery('SELECT u.*, COUNT(man.id) as mt5_accounts FROM users u LEFT JOIN mt5_account_names man ON u.id = man.user_id WHERE u.role = \\'client\\' GROUP BY u.id;')`);
+    }
+}
 
-            <!-- EAs Tab -->
-            <div class="tab-content" id="eas">
-                <div class="content-area">
-                    <div class="content-header">
-                        <h3>Expert Advisors</h3>
-                        <div>
-                            <button class="btn" onclick="loadTable('eas')">
-                                <i class="fas fa-sync"></i> Load EAs
-                            </button>
-                            <button class="btn" onclick="runQuery('SELECT ea.*, COUNT(epa.id) as assigned_pairs FROM eas ea LEFT JOIN ea_pair_assignments epa ON ea.id = epa.ea_id GROUP BY ea.id;')">
-                                <i class="fas fa-link"></i> EA Assignments
-                            </button>
-                            <button class="btn" onclick="loadTable('ea_pair_assignments')">
-                                <i class="fas fa-project-diagram"></i> EA-Pair Assignments
-                            </button>
-                        </div>
-                    </div>
-                    <div class="result-area" id="easResult">
-                        Click "Load EAs" to view expert advisor data
-                    </div>
-                </div>
-            </div>
+// Initialize dashboard
+function initializeDashboard() {
+    const user = checkAuth();
+    if (!user) return;
+    
+    console.log('Dashboard initialized for:', user.email, 'Role:', user.role);
+    initializeTabs();
+    refreshStats();
+    updateButtonHandlers();
+}
 
-            <!-- Trading Pairs Tab -->
-            <div class="tab-content" id="trading">
-                <div class="content-area">
-                    <div class="content-header">
-                        <h3>Trading Pairs</h3>
-                        <div>
-                            <button class="btn" onclick="loadTable('trading_pairs')">
-                                <i class="fas fa-sync"></i> Load All Pairs
-                            </button>
-                            <button class="btn" onclick="runQuery('SELECT category, COUNT(*) as count FROM trading_pairs GROUP BY category;')">
-                                <i class="fas fa-chart-pie"></i> By Category
-                            </button>
-                            <button class="btn" onclick="runQuery('SELECT state, COUNT(*) as count FROM trading_pairs GROUP BY state;')">
-                                <i class="fas fa-toggle-on"></i> Status Summary
-                            </button>
-                        </div>
-                    </div>
-                    <div class="result-area" id="tradingResult">
-                        Click "Load All Pairs" to view trading pairs data
-                    </div>
-                </div>
-            </div>
+// Update predefined queries in the HTML
+document.addEventListener('DOMContentLoaded', function() {
+    // Update the SQL examples to use users table
+    const sqlEditor = document.getElementById('sqlEditor');
+    if (sqlEditor) {
+        sqlEditor.value = "SELECT * FROM users WHERE role = 'client' LIMIT 5;";
+    }
+    
+    // Update test buttons
+    const testClientsBtn = document.querySelector('button[onclick="runQuery(\'SELECT * FROM clients LIMIT 5;\')"]');
+    if (testClientsBtn) {
+        testClientsBtn.setAttribute('onclick', "runQuery('SELECT * FROM users WHERE role = \\'client\\' LIMIT 5;')");
+        testClientsBtn.textContent = 'Test Users';
+    }
+});
 
-            <!-- SQL Query Tool Tab -->
-            <div class="tab-content" id="sql">
-                <div class="content-area">
-                    <h3>SQL Query Tool</h3>
-                    <textarea class="sql-editor" id="sqlEditor" placeholder="SELECT * FROM clients LIMIT 10;">SELECT * FROM clients LIMIT 5;</textarea>
-                    <div style="margin-bottom: 1rem;">
-                        <button class="btn" onclick="runQuery()">Run Query</button>
-                        <button class="btn" onclick="runQuery('SELECT * FROM clients LIMIT 5;')">Test Clients</button>
-                        <button class="btn" onclick="runQuery('SELECT * FROM eas LIMIT 5;')">Test EAs</button>
-                        <button class="btn" onclick="runQuery('SELECT * FROM trading_pairs LIMIT 5;')">Test Pairs</button>
-                    </div>
-                    <div class="result-area" id="sqlResult">
-                        Run a query to see results...
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="/assets/app.js"></script>
-</body>
-</html>
+// Auto-initialize if on dashboard page
+if (document.querySelector('.dashboard')) {
+    document.addEventListener('DOMContentLoaded', initializeDashboard);
+}
+</script>
