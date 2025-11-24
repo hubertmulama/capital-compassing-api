@@ -1,6 +1,6 @@
-const { executeQuery } = require('./db-config.js');
+import { executeQuery } from './db-config.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -33,7 +33,7 @@ module.exports = async function handler(req, res) {
   }
 }
 
-// Handle SQL data queries
+// Handle SQL data queries - UPDATED security for users table
 async function handleDataQuery(req, res) {
   const { sql, params = [] } = req.body;
 
@@ -44,7 +44,7 @@ async function handleDataQuery(req, res) {
     });
   }
 
-  // Security checks
+  // Security checks - UPDATED
   const lowerSql = sql.toLowerCase().trim();
   const restrictedPatterns = [
     /drop\s+table/i,
@@ -62,8 +62,8 @@ async function handleDataQuery(req, res) {
     });
   }
 
-  // Allow UPDATE/INSERT on specific tables for state management
-  const allowedTables = ['clients', 'eas', 'trading_pairs', 'client_eas', 'mt5_account_names', 'ea_pair_assignments'];
+  // Allow UPDATE/INSERT on specific tables for state management - UPDATED
+  const allowedTables = ['users', 'eas', 'trading_pairs', 'client_eas', 'mt5_account_names', 'ea_pair_assignments'];
   
   if (lowerSql.startsWith('update') || lowerSql.startsWith('insert')) {
     const tableMatch = lowerSql.match(/(?:update|insert into)\s+(\w+)/i);
@@ -97,15 +97,15 @@ async function handleDataQuery(req, res) {
   });
 }
 
-// Handle predefined queries
+// Handle predefined queries - UPDATED
 async function handlePredefinedQueries(req, res) {
   const { query } = req.body;
   
   const predefinedQueries = {
-    'client_stats': 'SELECT c.*, COUNT(man.id) as mt5_accounts FROM clients c LEFT JOIN mt5_account_names man ON c.id = man.client_id GROUP BY c.id;',
-    'ea_assignments': 'SELECT ea.*, COUNT(epa.id) as assigned_pairs FROM eas ea LEFT JOIN ea_pair_assignments epa ON ea.id = epa.ea_id GROUP BY ea.id;',
-    'category_stats': 'SELECT category, COUNT(*) as count FROM trading_pairs GROUP BY category;',
-    'status_summary': 'SELECT state, COUNT(*) as count FROM trading_pairs GROUP BY state;'
+    'user_stats': "SELECT u.*, COUNT(man.id) as mt5_accounts FROM users u LEFT JOIN mt5_account_names man ON u.id = man.user_id WHERE u.role = 'client' GROUP BY u.id;",
+    'ea_assignments': "SELECT ea.*, COUNT(epa.id) as assigned_pairs FROM eas ea LEFT JOIN ea_pair_assignments epa ON ea.id = epa.ea_id GROUP BY ea.id;",
+    'category_stats': "SELECT category, COUNT(*) as count FROM trading_pairs GROUP BY category;",
+    'status_summary': "SELECT state, COUNT(*) as count FROM trading_pairs GROUP BY state;"
   };
 
   const sql = predefinedQueries[query];
@@ -124,21 +124,21 @@ async function handlePredefinedQueries(req, res) {
   });
 }
 
-// Handle analytics
+// Handle analytics - UPDATED
 async function handleAnalytics(req, res) {
   const { type } = req.body;
   
   const analyticsQueries = {
     'overview': [
-      'SELECT COUNT(*) as total_clients FROM clients',
-      'SELECT COUNT(*) as total_eas FROM eas',
-      'SELECT COUNT(*) as total_pairs FROM trading_pairs',
-      'SELECT COUNT(*) as total_accounts FROM account_details'
+      "SELECT COUNT(*) as total_users FROM users WHERE role = 'client'",
+      "SELECT COUNT(*) as total_eas FROM eas",
+      "SELECT COUNT(*) as total_pairs FROM trading_pairs",
+      "SELECT COUNT(*) as total_accounts FROM account_details"
     ],
     'active_stats': [
-      'SELECT COUNT(*) as active_clients FROM clients WHERE state = \'active\'',
-      'SELECT COUNT(*) as enabled_eas FROM eas WHERE state = \'enabled\'',
-      'SELECT COUNT(*) as enabled_pairs FROM trading_pairs WHERE state = \'enabled\''
+      "SELECT COUNT(*) as active_users FROM users WHERE state = 'active' AND role = 'client'",
+      "SELECT COUNT(*) as enabled_eas FROM eas WHERE state = 'enabled'",
+      "SELECT COUNT(*) as enabled_pairs FROM trading_pairs WHERE state = 'enabled'"
     ]
   };
 
