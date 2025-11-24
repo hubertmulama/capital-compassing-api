@@ -1,321 +1,192 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Portal - Capital Compassing</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="/assets/style.css" rel="stylesheet">
-</head>
-<body>
-    <div class="dashboard">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2><i class="fas fa-chart-line"></i> Capital Compassing</h2>
-                <p>Client Portal</p>
-            </div>
-            <div class="nav-links">
-                <div class="nav-item active" data-tab="overview">
-                    <i class="fas fa-home"></i> Overview
-                </div>
-                <div class="nav-item" data-tab="accounts">
-                    <i class="fas fa-wallet"></i> My Accounts
-                </div>
-                <div class="nav-item" data-tab="eas">
-                    <i class="fas fa-robot"></i> My EAs
-                </div>
-                <div class="nav-item" data-tab="profile">
-                    <i class="fas fa-user"></i> Profile
-                </div>
-                <div class="nav-item" onclick="logout()" style="margin-top: auto;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </div>
-            </div>
-        </div>
+// Client-specific JavaScript - UPDATED FOR NEW SCHEMA
+let clientData = null;
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="header">
-                <button class="mobile-menu" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i> Menu
-                </button>
-                <h1>Client Portal</h1>
-                <div id="userWelcome"></div>
-            </div>
+// Initialize client dashboard
+function initializeClientDashboard() {
+    const user = checkAuth();
+    if (!user) return;
 
-            <!-- Overview Tab -->
-            <div class="tab-content active" id="overview">
-                <div class="stats-grid" id="clientStatsGrid">
-                    <div class="stat-card">
-                        <i class="fas fa-wallet"></i>
-                        <div class="stat-number" id="totalAccounts">-</div>
-                        <div class="stat-label">MT5 Accounts</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-robot"></i>
-                        <div class="stat-number" id="activeEAs">-</div>
-                        <div class="stat-label">Active EAs</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-chart-line"></i>
-                        <div class="stat-number" id="tradingPairs">-</div>
-                        <div class="stat-label">Trading Pairs</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-check-circle"></i>
-                        <div class="stat-number" id="accountStatus">Active</div>
-                        <div class="stat-label">Account Status</div>
-                    </div>
+    // Update welcome message
+    document.getElementById('userWelcome').innerHTML = `
+        <div>Welcome, <strong>${user.name}</strong></div>
+    `;
+
+    clientData = user;
+    loadClientData();
+    initializeTabs();
+}
+
+// Load all client data
+async function loadClientData() {
+    await loadClientAccounts();
+    await loadClientEAs();
+    await loadClientProfile();
+    updateClientStats();
+}
+
+// Load client accounts - UPDATED
+async function loadClientAccounts() {
+    const resultDiv = document.getElementById('accountsResult');
+    resultDiv.innerHTML = 'Loading...';
+
+    try {
+        const response = await fetch('/api/admin?action=data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sql: `SELECT man.*, ad.balance, ad.equity, ad.margin, ad.free_margin 
+                      FROM mt5_account_names man 
+                      LEFT JOIN account_details ad ON man.id = ad.mt5_name_id 
+                      WHERE man.user_id = $1 
+                      ORDER BY man.created_at DESC`,
+                params: [clientData.id]  // Changed from clientData.client_id to clientData.id
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            if (data.rows.length > 0) {
+                let html = '<table><tr><th>MT5 Name</th><th>Status</th><th>Balance</th><th>Equity</th><th>Free Margin</th><th>Created</th></tr>';
+                data.rows.forEach(row => {
+                    html += `<tr>
+                        <td>${row.mt5_name}</td>
+                        <td><span style="color: ${row.state === 'active' ? 'green' : 'red'}">${row.state}</span></td>
+                        <td>${row.balance || 'N/A'}</td>
+                        <td>${row.equity || 'N/A'}</td>
+                        <td>${row.free_margin || 'N/A'}</td>
+                        <td>${new Date(row.created_at).toLocaleDateString()}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+                resultDiv.innerHTML = html;
+            } else {
+                resultDiv.innerHTML = '<div style="color: #6b7280;">No MT5 accounts found</div>';
+            }
+        } else {
+            resultDiv.innerHTML = '<div style="color: red;">Error loading accounts: ' + data.error + '</div>';
+        }
+    } catch (error) {
+        resultDiv.innerHTML = '<div style="color: red;">Failed to load accounts: ' + error.message + '</div>';
+    }
+}
+
+// Load client EAs - UPDATED
+async function loadClientEAs() {
+    const resultDiv = document.getElementById('easResult');
+    resultDiv.innerHTML = 'Loading...';
+
+    try {
+        const response = await fetch('/api/admin?action=data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sql: `SELECT ce.*, ea.name as ea_name, ea.version, ea.description 
+                      FROM client_eas ce 
+                      JOIN eas ea ON ce.ea_id = ea.id 
+                      WHERE ce.client_id = $1 
+                      ORDER BY ea.name`,
+                params: [clientData.id]  // client_eas still uses client_id but it now references users.id
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            if (data.rows.length > 0) {
+                let html = '<table><tr><th>EA Name</th><th>Version</th><th>Status</th><th>Description</th></tr>';
+                data.rows.forEach(row => {
+                    html += `<tr>
+                        <td>${row.ea_name}</td>
+                        <td>${row.version || 'N/A'}</td>
+                        <td><span style="color: ${row.state === 'enabled' ? 'green' : 'red'}">${row.state}</span></td>
+                        <td>${row.description || 'No description'}</td>
+                    </tr>`;
+                });
+                html += '</table>';
+                resultDiv.innerHTML = html;
+            } else {
+                resultDiv.innerHTML = '<div style="color: #6b7280;">No Expert Advisors assigned</div>';
+            }
+        } else {
+            resultDiv.innerHTML = '<div style="color: red;">Error loading EAs: ' + data.error + '</div>';
+        }
+    } catch (error) {
+        resultDiv.innerHTML = '<div style="color: red;">Failed to load EAs: ' + error.message + '</div>';
+    }
+}
+
+// Load client profile - UPDATED
+async function loadClientProfile() {
+    const profileDiv = document.getElementById('profileInfo');
+    
+    try {
+        const response = await fetch('/api/admin?action=data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sql: `SELECT * FROM users WHERE id = $1`,
+                params: [clientData.id]  // Changed from clientData.client_id to clientData.id
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success && data.rows.length > 0) {
+            const user = data.rows[0];
+            profileDiv.innerHTML = `
+                <div style="display: grid; gap: 1rem; max-width: 400px;">
+                    <div><strong>Name:</strong> ${user.name}</div>
+                    <div><strong>Email:</strong> ${user.email}</div>
+                    <div><strong>Phone:</strong> ${user.phone || 'Not provided'}</div>
+                    <div><strong>Account Status:</strong> <span style="color: ${user.state === 'active' ? 'green' : 'red'}">${user.state}</span></div>
+                    <div><strong>Member Since:</strong> ${new Date(user.created_at).toLocaleDateString()}</div>
+                    <div><strong>Role:</strong> ${user.role}</div>
                 </div>
-                
-                <div class="content-area">
-                    <h3>Welcome to Your Dashboard</h3>
-                    <p>Manage your trading accounts and expert advisors from this portal.</p>
-                    
-                    <div style="margin-top: 1.5rem;">
-                        <button class="btn" onclick="loadClientAccounts()">
-                            <i class="fas fa-sync"></i> Refresh My Data
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Accounts Tab -->
-            <div class="tab-content" id="accounts">
-                <div class="content-area">
-                    <div class="content-header">
-                        <h3>My MT5 Accounts</h3>
-                        <button class="btn" onclick="loadClientAccounts()">
-                            <i class="fas fa-sync"></i> Refresh
-                        </button>
-                    </div>
-                    <div class="result-area" id="accountsResult">
-                        Loading your accounts...
-                    </div>
-                </div>
-            </div>
-
-            <!-- EAs Tab -->
-            <div class="tab-content" id="eas">
-                <div class="content-area">
-                    <div class="content-header">
-                        <h3>My Expert Advisors</h3>
-                        <button class="btn" onclick="loadClientEAs()">
-                            <i class="fas fa-sync"></i> Refresh
-                        </button>
-                    </div>
-                    <div class="result-area" id="easResult">
-                        Loading your EAs...
-                    </div>
-                </div>
-            </div>
-
-            <!-- Profile Tab -->
-            <div class="tab-content" id="profile">
-                <div class="content-area">
-                    <h3>My Profile</h3>
-                    <div id="profileInfo">
-                        Loading profile information...
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="/assets/app.js"></script>
-    <script>
-        // Client-specific JavaScript
-        let clientData = null;
-
-        // Initialize client dashboard
-        function initializeClientDashboard() {
-            const user = checkAuth();
-            if (!user) return;
-
-            // Update welcome message
-            document.getElementById('userWelcome').innerHTML = `
-                <div>Welcome, <strong>${user.name}</strong></div>
             `;
+        }
+    } catch (error) {
+        profileDiv.innerHTML = '<div style="color: red;">Failed to load profile</div>';
+    }
+}
 
-            clientData = user;
-            loadClientData();
-            initializeTabs();
+// Update client stats - UPDATED
+async function updateClientStats() {
+    try {
+        // Get account count - UPDATED
+        const accountsResponse = await fetch('/api/admin?action=data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sql: `SELECT COUNT(*) as count FROM mt5_account_names WHERE user_id = $1 AND state = 'active'`,
+                params: [clientData.id]  // Changed from client_id to user_id
+            })
+        });
+        
+        const accountsData = await accountsResponse.json();
+        if (accountsData.success) {
+            document.getElementById('totalAccounts').textContent = accountsData.rows[0].count;
         }
 
-        // Load all client data
-        async function loadClientData() {
-            await loadClientAccounts();
-            await loadClientEAs();
-            await loadClientProfile();
-            updateClientStats();
+        // Get active EAs count - UPDATED
+        const easResponse = await fetch('/api/admin?action=data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sql: `SELECT COUNT(*) as count FROM client_eas WHERE client_id = $1 AND state = 'enabled'`,
+                params: [clientData.id]  // client_eas.client_id now references users.id
+            })
+        });
+        
+        const easData = await easResponse.json();
+        if (easData.success) {
+            document.getElementById('activeEAs').textContent = easData.rows[0].count;
         }
 
-        // Load client accounts
-        async function loadClientAccounts() {
-            const resultDiv = document.getElementById('accountsResult');
-            resultDiv.innerHTML = 'Loading...';
+    } catch (error) {
+        console.error('Error updating stats:', error);
+    }
+}
 
-            try {
-                const response = await fetch('/api/admin?action=data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        sql: `SELECT man.*, ad.balance, ad.equity, ad.margin, ad.free_margin 
-                              FROM mt5_account_names man 
-                              LEFT JOIN account_details ad ON man.id = ad.mt5_name_id 
-                              WHERE man.client_id = $1 
-                              ORDER BY man.created_at DESC`,
-                        params: [clientData.client_id]
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    if (data.rows.length > 0) {
-                        let html = '<table><tr><th>MT5 Name</th><th>Status</th><th>Balance</th><th>Equity</th><th>Free Margin</th><th>Created</th></tr>';
-                        data.rows.forEach(row => {
-                            html += `<tr>
-                                <td>${row.mt5_name}</td>
-                                <td><span style="color: ${row.state === 'active' ? 'green' : 'red'}">${row.state}</span></td>
-                                <td>${row.balance || 'N/A'}</td>
-                                <td>${row.equity || 'N/A'}</td>
-                                <td>${row.free_margin || 'N/A'}</td>
-                                <td>${new Date(row.created_at).toLocaleDateString()}</td>
-                            </tr>`;
-                        });
-                        html += '</table>';
-                        resultDiv.innerHTML = html;
-                    } else {
-                        resultDiv.innerHTML = '<div style="color: #6b7280;">No MT5 accounts found</div>';
-                    }
-                } else {
-                    resultDiv.innerHTML = '<div style="color: red;">Error loading accounts</div>';
-                }
-            } catch (error) {
-                resultDiv.innerHTML = '<div style="color: red;">Failed to load accounts</div>';
-            }
-        }
-
-        // Load client EAs
-        async function loadClientEAs() {
-            const resultDiv = document.getElementById('easResult');
-            resultDiv.innerHTML = 'Loading...';
-
-            try {
-                const response = await fetch('/api/admin?action=data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        sql: `SELECT ce.*, ea.name as ea_name, ea.version, ea.description 
-                              FROM client_eas ce 
-                              JOIN eas ea ON ce.ea_id = ea.id 
-                              WHERE ce.client_id = $1 
-                              ORDER BY ea.name`,
-                        params: [clientData.client_id]
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    if (data.rows.length > 0) {
-                        let html = '<table><tr><th>EA Name</th><th>Version</th><th>Status</th><th>Description</th></tr>';
-                        data.rows.forEach(row => {
-                            html += `<tr>
-                                <td>${row.ea_name}</td>
-                                <td>${row.version || 'N/A'}</td>
-                                <td><span style="color: ${row.state === 'enabled' ? 'green' : 'red'}">${row.state}</span></td>
-                                <td>${row.description || 'No description'}</td>
-                            </tr>`;
-                        });
-                        html += '</table>';
-                        resultDiv.innerHTML = html;
-                    } else {
-                        resultDiv.innerHTML = '<div style="color: #6b7280;">No Expert Advisors assigned</div>';
-                    }
-                } else {
-                    resultDiv.innerHTML = '<div style="color: red;">Error loading EAs</div>';
-                }
-            } catch (error) {
-                resultDiv.innerHTML = '<div style="color: red;">Failed to load EAs</div>';
-            }
-        }
-
-        // Load client profile
-        async function loadClientProfile() {
-            const profileDiv = document.getElementById('profileInfo');
-            
-            try {
-                const response = await fetch('/api/admin?action=data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        sql: `SELECT * FROM clients WHERE id = $1`,
-                        params: [clientData.client_id]
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.success && data.rows.length > 0) {
-                    const client = data.rows[0];
-                    profileDiv.innerHTML = `
-                        <div style="display: grid; gap: 1rem; max-width: 400px;">
-                            <div><strong>Name:</strong> ${client.name}</div>
-                            <div><strong>Email:</strong> ${client.email}</div>
-                            <div><strong>Phone:</strong> ${client.phone || 'Not provided'}</div>
-                            <div><strong>Account Status:</strong> <span style="color: ${client.state === 'active' ? 'green' : 'red'}">${client.state}</span></div>
-                            <div><strong>Member Since:</strong> ${new Date(client.created_at).toLocaleDateString()}</div>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                profileDiv.innerHTML = '<div style="color: red;">Failed to load profile</div>';
-            }
-        }
-
-        // Update client stats
-        async function updateClientStats() {
-            try {
-                // Get account count
-                const accountsResponse = await fetch('/api/admin?action=data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        sql: `SELECT COUNT(*) as count FROM mt5_account_names WHERE client_id = $1 AND state = 'active'`,
-                        params: [clientData.client_id]
-                    })
-                });
-                
-                const accountsData = await accountsResponse.json();
-                if (accountsData.success) {
-                    document.getElementById('totalAccounts').textContent = accountsData.rows[0].count;
-                }
-
-                // Get active EAs count
-                const easResponse = await fetch('/api/admin?action=data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        sql: `SELECT COUNT(*) as count FROM client_eas WHERE client_id = $1 AND state = 'enabled'`,
-                        params: [clientData.client_id]
-                    })
-                });
-                
-                const easData = await easResponse.json();
-                if (easData.success) {
-                    document.getElementById('activeEAs').textContent = easData.rows[0].count;
-                }
-
-            } catch (error) {
-                console.error('Error updating stats:', error);
-            }
-        }
-
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', initializeClientDashboard);
-    </script>
-</body>
-</html>
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', initializeClientDashboard);
