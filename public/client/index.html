@@ -1,3 +1,4 @@
+<script>
 // Client-specific JavaScript - UPDATED FOR NEW SCHEMA
 let clientData = null;
 
@@ -7,9 +8,7 @@ function initializeClientDashboard() {
     if (!user) return;
 
     // Update welcome message
-    document.getElementById('userWelcome').innerHTML = `
-        <div>Welcome, <strong>${user.name}</strong></div>
-    `;
+    document.getElementById('userWelcome').innerHTML = '<div>Welcome, <strong>' + user.name + '</strong></div>';
 
     clientData = user;
     loadClientData();
@@ -34,11 +33,7 @@ async function loadClientAccounts() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                sql: `SELECT man.*, ad.balance, ad.equity, ad.margin, ad.free_margin 
-                      FROM mt5_account_names man 
-                      LEFT JOIN account_details ad ON man.id = ad.mt5_name_id 
-                      WHERE man.user_id = $1 
-                      ORDER BY man.created_at DESC`,
+                sql: "SELECT man.*, ad.balance, ad.equity, ad.margin, ad.free_margin FROM mt5_account_names man LEFT JOIN account_details ad ON man.id = ad.mt5_name_id WHERE man.user_id = $1 ORDER BY man.created_at DESC",
                 params: [clientData.id]
             })
         });
@@ -81,11 +76,7 @@ async function loadClientEAs() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                sql: `SELECT ce.*, ea.name as ea_name, ea.version, ea.description 
-                      FROM client_eas ce 
-                      JOIN eas ea ON ce.ea_id = ea.id 
-                      WHERE ce.client_id = $1 
-                      ORDER BY ea.name`,
+                sql: "SELECT ce.*, ea.name as ea_name, ea.version, ea.description FROM client_eas ce JOIN eas ea ON ce.ea_id = ea.id WHERE ce.client_id = $1 ORDER BY ea.name",
                 params: [clientData.id]
             })
         });
@@ -125,7 +116,7 @@ async function loadClientProfile() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                sql: `SELECT * FROM users WHERE id = $1`,
+                sql: "SELECT * FROM users WHERE id = $1",
                 params: [clientData.id]
             })
         });
@@ -157,7 +148,7 @@ async function updateClientStats() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                sql: `SELECT COUNT(*) as count FROM mt5_account_names WHERE user_id = $1 AND state = 'active'`,
+                sql: "SELECT COUNT(*) as count FROM mt5_account_names WHERE user_id = $1 AND state = 'active'",
                 params: [clientData.id]
             })
         });
@@ -172,7 +163,7 @@ async function updateClientStats() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                sql: `SELECT COUNT(*) as count FROM client_eas WHERE client_id = $1 AND state = 'enabled'`,
+                sql: "SELECT COUNT(*) as count FROM client_eas WHERE client_id = $1 AND state = 'enabled'",
                 params: [clientData.id]
             })
         });
@@ -189,3 +180,4 @@ async function updateClientStats() {
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', initializeClientDashboard);
+</script>
