@@ -6,6 +6,42 @@
     <title>Admin Dashboard - Capital Compassing</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="/assets/style.css" rel="stylesheet">
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .alert-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard">
@@ -241,25 +277,56 @@ function toggleSidebar() {
     }
 }
 
+// Enhanced showAlert function with popups
 function showAlert(message, type = 'error') {
-    // Create alert element if it doesn't exist
-    let alertDiv = document.getElementById('alertMessage');
-    if (!alertDiv) {
-        alertDiv = document.createElement('div');
-        alertDiv.id = 'alertMessage';
-        alertDiv.className = 'alert hidden';
-        document.querySelector('.main-content').prepend(alertDiv);
+    // Remove any existing alerts first
+    const existingAlert = document.getElementById('alertPopup');
+    if (existingAlert) {
+        existingAlert.remove();
     }
     
-    alertDiv.textContent = message;
-    alertDiv.className = `alert alert-${type}`;
-    alertDiv.classList.remove('hidden');
+    // Create new alert
+    const alertDiv = document.createElement('div');
+    alertDiv.id = 'alertPopup';
+    alertDiv.className = `alert-popup alert-${type}`;
     
+    // Add icon based on type
+    let icon = '❌';
+    if (type === 'success') icon = '✅';
+    if (type === 'warning') icon = '⚠️';
+    
+    alertDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.2rem;">${icon}</span>
+            <span style="font-weight: 500;">${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(alertDiv);
+    
+    // Auto-hide success messages after 3 seconds
     if (type === 'success') {
         setTimeout(() => {
-            alertDiv.classList.add('hidden');
-        }, 5000);
+            if (alertDiv.parentNode) {
+                alertDiv.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.remove();
+                    }
+                }, 300);
+            }
+        }, 3000);
     }
+    
+    // Add click to dismiss for all alerts
+    alertDiv.addEventListener('click', () => {
+        alertDiv.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 300);
+    });
 }
 
 // Create HTML table from data
@@ -309,7 +376,8 @@ function createTableHTML(rows, tableName = '') {
                 <button class="btn-toggle ${buttonClass}" 
                         onclick="toggleState('${tableName}', ${row.id}, '${newState}')"
                         data-id="${row.id}"
-                        data-table="${tableName}">
+                        data-table="${tableName}"
+                        style="transition: all 0.3s ease;">
                     ${buttonText}
                 </button>
             </td>`;
@@ -321,7 +389,7 @@ function createTableHTML(rows, tableName = '') {
     return html;
 }
 
-// Toggle state function
+// Toggle state function - UPDATED WITH AUTO-REFRESH
 async function toggleState(tableName, id, newState) {
     console.log(`Toggling ${tableName} ID ${id} to ${newState}`);
     
@@ -330,7 +398,7 @@ async function toggleState(tableName, id, newState) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                sql: `UPDATE ${tableName} SET state = $1 WHERE id = $2`,
+                sql: `UPDATE ${tableName} SET state = $1 WHERE id = $2 RETURNING *`,
                 params: [newState, id]
             })
         });
@@ -338,8 +406,10 @@ async function toggleState(tableName, id, newState) {
         const data = await response.json();
         
         if (data.success) {
+            // Show success popup
             showAlert(`✅ ${tableName} ID ${id} ${newState} successfully!`, 'success');
-            // Reload current table
+            
+            // Auto-refresh the current table immediately
             reloadCurrentTable();
         } else {
             showAlert(`❌ Error: ${data.error}`, 'error');
@@ -349,16 +419,21 @@ async function toggleState(tableName, id, newState) {
     }
 }
 
-// Reload current table
+// Reload current table - IMPROVED
 function reloadCurrentTable() {
     const activeTab = document.querySelector('.nav-item.active');
     if (activeTab) {
         const tabId = activeTab.getAttribute('data-tab');
-        setTimeout(() => {
-            if (tabId === 'users') loadTable('users');
-            else if (tabId === 'eas') loadTable('eas');
-            else if (tabId === 'trading') loadTable('trading_pairs');
-        }, 500);
+        console.log('Reloading tab:', tabId);
+        
+        // Immediately reload the appropriate table
+        if (tabId === 'users') {
+            loadTable('users');
+        } else if (tabId === 'eas') {
+            loadTable('eas');
+        } else if (tabId === 'trading') {
+            loadTable('trading_pairs');
+        }
     }
 }
 
