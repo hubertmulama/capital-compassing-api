@@ -1,4 +1,189 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Capital Compassing</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/assets/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-chart-line"></i> Capital Compassing</h2>
+                <p>Admin Dashboard</p>
+            </div>
+            <div class="nav-links">
+                <div class="nav-item active" data-tab="overview">
+                    <i class="fas fa-home"></i> Overview
+                </div>
+                <div class="nav-item" data-tab="users">
+                    <i class="fas fa-users"></i> Users
+                </div>
+                <div class="nav-item" data-tab="eas">
+                    <i class="fas fa-robot"></i> Expert Advisors
+                </div>
+                <div class="nav-item" data-tab="trading">
+                    <i class="fas fa-chart-bar"></i> Trading Pairs
+                </div>
+                <div class="nav-item" data-tab="sql">
+                    <i class="fas fa-database"></i> SQL Query Tool
+                </div>
+                <div class="nav-item" onclick="logout()" style="margin-top: auto;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <button class="mobile-menu" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+                <h1>Admin Dashboard</h1>
+                <button class="btn" onclick="refreshStats()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div class="tab-content active" id="overview">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-robot"></i>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Expert Advisors</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-bar"></i>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Trading Pairs</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-wallet"></i>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Account Records</div>
+                    </div>
+                </div>
+                
+                <div class="content-area">
+                    <h3>Quick Actions</h3>
+                    <button class="btn" onclick="loadTable('users')">
+                        <i class="fas fa-users"></i> View Users
+                    </button>
+                    <button class="btn" onclick="loadTable('eas')">
+                        <i class="fas fa-robot"></i> View EAs
+                    </button>
+                    <button class="btn" onclick="loadTable('trading_pairs')">
+                        <i class="fas fa-chart-bar"></i> View Trading Pairs
+                    </button>
+                    <button class="btn" onclick="runQuery('SELECT * FROM account_details ORDER BY updated_at DESC LIMIT 10;')">
+                        <i class="fas fa-wallet"></i> Recent Accounts
+                    </button>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div class="tab-content" id="users">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>Users Management</h3>
+                        <div>
+                            <button class="btn" onclick="loadTable('users')">
+                                <i class="fas fa-sync"></i> Load Users
+                            </button>
+                            <button class="btn" onclick="runQuery('SELECT u.*, COUNT(man.id) as mt5_accounts FROM users u LEFT JOIN mt5_account_names man ON u.id = man.user_id WHERE u.role = \\'client\\' GROUP BY u.id;')">
+                                <i class="fas fa-chart-bar"></i> User Stats
+                            </button>
+                            <button class="btn" onclick="loadTable('client_eas')">
+                                <i class="fas fa-link"></i> User-EA Assignments
+                            </button>
+                            <button class="btn" onclick="loadTable('mt5_account_names')">
+                                <i class="fas fa-user-tag"></i> MT5 Accounts
+                            </button>
+                        </div>
+                    </div>
+                    <div class="result-area" id="usersResult">
+                        Click "Load Users" to view user data
+                    </div>
+                </div>
+            </div>
+
+            <!-- EAs Tab -->
+            <div class="tab-content" id="eas">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>Expert Advisors</h3>
+                        <div>
+                            <button class="btn" onclick="loadTable('eas')">
+                                <i class="fas fa-sync"></i> Load EAs
+                            </button>
+                            <button class="btn" onclick="runQuery('SELECT ea.*, COUNT(epa.id) as assigned_pairs FROM eas ea LEFT JOIN ea_pair_assignments epa ON ea.id = epa.ea_id GROUP BY ea.id;')">
+                                <i class="fas fa-link"></i> EA Assignments
+                            </button>
+                            <button class="btn" onclick="loadTable('ea_pair_assignments')">
+                                <i class="fas fa-project-diagram"></i> EA-Pair Assignments
+                            </button>
+                        </div>
+                    </div>
+                    <div class="result-area" id="easResult">
+                        Click "Load EAs" to view expert advisor data
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trading Pairs Tab -->
+            <div class="tab-content" id="trading">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>Trading Pairs</h3>
+                        <div>
+                            <button class="btn" onclick="loadTable('trading_pairs')">
+                                <i class="fas fa-sync"></i> Load All Pairs
+                            </button>
+                            <button class="btn" onclick="runQuery('SELECT category, COUNT(*) as count FROM trading_pairs GROUP BY category;')">
+                                <i class="fas fa-chart-pie"></i> By Category
+                            </button>
+                            <button class="btn" onclick="runQuery('SELECT state, COUNT(*) as count FROM trading_pairs GROUP BY state;')">
+                                <i class="fas fa-toggle-on"></i> Status Summary
+                            </button>
+                        </div>
+                    </div>
+                    <div class="result-area" id="tradingResult">
+                        Click "Load All Pairs" to view trading pairs data
+                    </div>
+                </div>
+            </div>
+
+            <!-- SQL Query Tool Tab -->
+            <div class="tab-content" id="sql">
+                <div class="content-area">
+                    <h3>SQL Query Tool</h3>
+                    <textarea class="sql-editor" id="sqlEditor" placeholder="SELECT * FROM users WHERE role = 'client' LIMIT 10;">SELECT * FROM users WHERE role = 'client' LIMIT 5;</textarea>
+                    <div style="margin-bottom: 1rem;">
+                        <button class="btn" onclick="runQuery()">Run Query</button>
+                        <button class="btn" onclick="runQuery('SELECT * FROM users WHERE role = \\'client\\' LIMIT 5;')">Test Users</button>
+                        <button class="btn" onclick="runQuery('SELECT * FROM eas LIMIT 5;')">Test EAs</button>
+                        <button class="btn" onclick="runQuery('SELECT * FROM trading_pairs LIMIT 5;')">Test Pairs</button>
+                    </div>
+                    <div class="result-area" id="sqlResult">
+                        Run a query to see results...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/app.js"></script>
+    <script>
 // Admin dashboard JavaScript - UPDATED FOR NEW SCHEMA
 
 // Load dashboard stats - UPDATED
@@ -14,7 +199,7 @@ async function refreshStats() {
     
     try {
         const queries = [
-            "SELECT COUNT(*) as count FROM users WHERE role = 'client'",  // Changed from clients
+            "SELECT COUNT(*) as count FROM users WHERE role = 'client'",
             "SELECT COUNT(*) as count FROM eas",
             "SELECT COUNT(*) as count FROM trading_pairs",
             "SELECT COUNT(*) as count FROM account_details"
@@ -45,7 +230,7 @@ async function loadTable(tableName) {
     console.log('Loading table:', tableName);
     
     const elementMap = {
-        'users': 'clientsResult',  // Now showing users instead of clients
+        'users': 'usersResult',
         'eas': 'easResult', 
         'trading_pairs': 'tradingResult'
     };
@@ -117,21 +302,6 @@ async function loadTable(tableName) {
     }
 }
 
-// Update the button handlers in the HTML - UPDATED
-function updateButtonHandlers() {
-    // Update the "View Clients" button to show users
-    const clientsBtn = document.querySelector('button[onclick="loadTable(\'clients\')"]');
-    if (clientsBtn) {
-        clientsBtn.setAttribute('onclick', "loadTable('users')");
-    }
-    
-    // Update the "Client Stats" button
-    const clientStatsBtn = document.querySelector('button[onclick*=\"client stats\"]');
-    if (clientStatsBtn) {
-        clientStatsBtn.setAttribute('onclick', `runQuery('SELECT u.*, COUNT(man.id) as mt5_accounts FROM users u LEFT JOIN mt5_account_names man ON u.id = man.user_id WHERE u.role = \\'client\\' GROUP BY u.id;')`);
-    }
-}
-
 // Initialize dashboard
 function initializeDashboard() {
     const user = checkAuth();
@@ -140,27 +310,12 @@ function initializeDashboard() {
     console.log('Dashboard initialized for:', user.email, 'Role:', user.role);
     initializeTabs();
     refreshStats();
-    updateButtonHandlers();
 }
-
-// Update predefined queries in the HTML
-document.addEventListener('DOMContentLoaded', function() {
-    // Update the SQL examples to use users table
-    const sqlEditor = document.getElementById('sqlEditor');
-    if (sqlEditor) {
-        sqlEditor.value = "SELECT * FROM users WHERE role = 'client' LIMIT 5;";
-    }
-    
-    // Update test buttons
-    const testClientsBtn = document.querySelector('button[onclick="runQuery(\'SELECT * FROM clients LIMIT 5;\')"]');
-    if (testClientsBtn) {
-        testClientsBtn.setAttribute('onclick', "runQuery('SELECT * FROM users WHERE role = \\'client\\' LIMIT 5;')");
-        testClientsBtn.textContent = 'Test Users';
-    }
-});
 
 // Auto-initialize if on dashboard page
 if (document.querySelector('.dashboard')) {
     document.addEventListener('DOMContentLoaded', initializeDashboard);
 }
-</script>
+    </script>
+</body>
+</html>
