@@ -182,50 +182,187 @@
         </div>
     </div>
 
-    <script src="/assets/app.js"></script>
     <script>
-// Admin dashboard JavaScript - UPDATED FOR NEW SCHEMA
+// Authentication functions for admin dashboard
+function checkAuth() {
+    const sessionToken = localStorage.getItem('sessionToken');
+    const user = localStorage.getItem('user');
+    
+    if (!sessionToken || !user) {
+        window.location.href = '/login.html';
+        return null;
+    }
+    
+    const userData = JSON.parse(user);
+    
+    // Check if user has admin privileges
+    if (userData.role !== 'admin' && userData.role !== 'staff') {
+        window.location.href = '/client/';
+        return null;
+    }
+    
+    return userData;
+}
 
-// Load dashboard stats - UPDATED
-async function refreshStats() {
-    const statsGrid = document.getElementById('statsGrid');
-    if (!statsGrid) return;
+function logout() {
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('user');
+    window.location.href = '/login.html';
+}
+
+function initializeTabs() {
+    const navItems = document.querySelectorAll('.nav-item');
+    if (navItems.length === 0) return;
     
-    const statCards = statsGrid.querySelectorAll('.stat-number');
-    if (statCards.length === 0) return;
-    
-    // Show loading
-    statCards.forEach(card => card.textContent = '...');
-    
-    try {
-        const queries = [
-            "SELECT COUNT(*) as count FROM users WHERE role = 'client'",
-            "SELECT COUNT(*) as count FROM eas",
-            "SELECT COUNT(*) as count FROM trading_pairs",
-            "SELECT COUNT(*) as count FROM account_details"
-        ];
-        
-        const results = await Promise.all(queries.map(query => 
-            fetch('/api/admin?action=data', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sql: query })
-            }).then(r => r.json())
-        ));
-        
-        // Update stats
-        results.forEach((result, index) => {
-            if (result.success && statCards[index]) {
-                statCards[index].textContent = result.rows[0].count;
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            this.classList.add('active');
+            const tabId = this.getAttribute('data-tab');
+            const tabContent = document.getElementById(tabId);
+            if (tabContent) {
+                tabContent.classList.add('active');
+            }
+            
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('active');
             }
         });
-        
-    } catch (error) {
-        console.error('Error loading stats:', error);
+    });
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
     }
 }
 
-// Load table data - UPDATED
+function showAlert(message, type = 'error') {
+    // Create alert element if it doesn't exist
+    let alertDiv = document.getElementById('alertMessage');
+    if (!alertDiv) {
+        alertDiv = document.createElement('div');
+        alertDiv.id = 'alertMessage';
+        alertDiv.className = 'alert hidden';
+        document.querySelector('.main-content').prepend(alertDiv);
+    }
+    
+    alertDiv.textContent = message;
+    alertDiv.className = `alert alert-${type}`;
+    alertDiv.classList.remove('hidden');
+    
+    if (type === 'success') {
+        setTimeout(() => {
+            alertDiv.classList.add('hidden');
+        }, 5000);
+    }
+}
+
+// Create HTML table from data
+function createTableHTML(rows, tableName = '') {
+    if (rows.length === 0) return '<div>No data found</div>';
+    
+    let html = '<h4>Results (' + rows.length + ' rows)</h4>';
+    html += '<div style="overflow-x: auto;"><table><tr>';
+    
+    // Header - add Actions column if table has state
+    const hasState = rows[0].state !== undefined;
+    Object.keys(rows[0]).forEach(key => {
+        html += '<th>' + key + '</th>';
+    });
+    if (hasState && tableName) {
+        html += '<th>Actions</th>';
+    }
+    html += '</tr>';
+    
+    // Rows
+    rows.forEach(row => {
+        html += '<tr>';
+        Object.values(row).forEach(value => {
+            html += '<td>' + (value === null ? 'NULL' : value) + '</td>';
+        });
+        
+        // Add toggle button if table has state
+        if (hasState && tableName) {
+            // Determine correct state values for each table type
+            let isActive, newState, buttonText, buttonClass;
+            
+            if (tableName === 'users' || tableName === 'mt5_account_names') {
+                // Users and MT5 accounts use 'active'/'inactive'
+                isActive = row.state === 'active';
+                newState = isActive ? 'inactive' : 'active';
+                buttonText = isActive ? 'Deactivate' : 'Activate';
+                buttonClass = isActive ? 'btn-danger' : 'btn-success';
+            } else {
+                // Other tables use 'enabled'/'disabled'
+                isActive = row.state === 'enabled';
+                newState = isActive ? 'disabled' : 'enabled';
+                buttonText = isActive ? 'Disable' : 'Enable';
+                buttonClass = isActive ? 'btn-danger' : 'btn-success';
+            }
+            
+            html += `<td>
+                <button class="btn-toggle ${buttonClass}" 
+                        onclick="toggleState('${tableName}', ${row.id}, '${newState}')"
+                        data-id="${row.id}"
+                        data-table="${tableName}">
+                    ${buttonText}
+                </button>
+            </td>`;
+        }
+        html += '</tr>';
+    });
+    
+    html += '</table></div>';
+    return html;
+}
+
+// Toggle state function
+async function toggleState(tableName, id, newState) {
+    console.log(`Toggling ${tableName} ID ${id} to ${newState}`);
+    
+    try {
+        const response = await fetch('/api/admin?action=data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                sql: `UPDATE ${tableName} SET state = $1 WHERE id = $2`,
+                params: [newState, id]
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showAlert(`✅ ${tableName} ID ${id} ${newState} successfully!`, 'success');
+            // Reload current table
+            reloadCurrentTable();
+        } else {
+            showAlert(`❌ Error: ${data.error}`, 'error');
+        }
+    } catch (error) {
+        showAlert(`❌ Request failed: ${error.message}`, 'error');
+    }
+}
+
+// Reload current table
+function reloadCurrentTable() {
+    const activeTab = document.querySelector('.nav-item.active');
+    if (activeTab) {
+        const tabId = activeTab.getAttribute('data-tab');
+        setTimeout(() => {
+            if (tabId === 'users') loadTable('users');
+            else if (tabId === 'eas') loadTable('eas');
+            else if (tabId === 'trading') loadTable('trading_pairs');
+        }, 500);
+    }
+}
+
+// Load table data
 async function loadTable(tableName) {
     console.log('Loading table:', tableName);
     
@@ -248,7 +385,7 @@ async function loadTable(tableName) {
     try {
         let query = `SELECT * FROM ${tableName} ORDER BY id LIMIT 20;`;
         
-        // Special queries for joined tables - UPDATED
+        // Special queries for joined tables
         if (tableName === 'client_eas') {
             query = `
                 SELECT ce.*, u.name as user_name, ea.name as ea_name 
@@ -299,6 +436,78 @@ async function loadTable(tableName) {
         }
     } catch (error) {
         resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
+    }
+}
+
+// Run SQL query
+async function runQuery(customQuery = null) {
+    const sqlEditor = document.getElementById('sqlEditor');
+    const resultDiv = document.getElementById('sqlResult');
+    
+    if (!resultDiv) return;
+    
+    const sql = customQuery || (sqlEditor ? sqlEditor.value : '');
+    resultDiv.innerHTML = 'Running query...';
+    
+    try {
+        const response = await fetch('/api/admin?action=data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sql })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            if (data.rows.length > 0) {
+                resultDiv.innerHTML = createTableHTML(data.rows);
+            } else {
+                resultDiv.innerHTML = '<div style="color: green;">✅ Query executed successfully. Rows affected: ' + data.rowCount + '</div>';
+            }
+        } else {
+            resultDiv.innerHTML = '<div style="color: red;">❌ Error: ' + data.error + '</div>';
+        }
+    } catch (error) {
+        resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
+    }
+}
+
+// Load dashboard stats
+async function refreshStats() {
+    const statsGrid = document.getElementById('statsGrid');
+    if (!statsGrid) return;
+    
+    const statCards = statsGrid.querySelectorAll('.stat-number');
+    if (statCards.length === 0) return;
+    
+    // Show loading
+    statCards.forEach(card => card.textContent = '...');
+    
+    try {
+        const queries = [
+            "SELECT COUNT(*) as count FROM users WHERE role = 'client'",
+            "SELECT COUNT(*) as count FROM eas",
+            "SELECT COUNT(*) as count FROM trading_pairs",
+            "SELECT COUNT(*) as count FROM account_details"
+        ];
+        
+        const results = await Promise.all(queries.map(query => 
+            fetch('/api/admin?action=data', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sql: query })
+            }).then(r => r.json())
+        ));
+        
+        // Update stats
+        results.forEach((result, index) => {
+            if (result.success && statCards[index]) {
+                statCards[index].textContent = result.rows[0].count;
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error loading stats:', error);
     }
 }
 
