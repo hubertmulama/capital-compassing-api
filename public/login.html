@@ -44,8 +44,38 @@
         </div>
     </div>
 
-    <script src="/assets/app.js"></script>
     <script>
+        // Alert function for login page
+        function showAlert(message, type = 'error') {
+            const alertDiv = document.getElementById('alertMessage');
+            if (!alertDiv) return;
+            
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.classList.remove('hidden');
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.classList.add('hidden');
+                }, 5000);
+            }
+        }
+
+        // Password toggle function
+        function togglePassword(fieldId) {
+            const passwordInput = document.getElementById(fieldId);
+            const toggleIcon = passwordInput.parentNode.querySelector('.toggle-btn i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fas fa-eye';
+            }
+        }
+
         // Handle login form submission
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -77,6 +107,7 @@
                 });
 
                 const data = await response.json();
+                console.log('Login response:', data);
 
                 if (data.success) {
                     showAlert('Login successful! Redirecting...', 'success');
@@ -85,9 +116,11 @@
                     localStorage.setItem('sessionToken', data.session.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     
+                    console.log('User data stored:', data.user);
+                    
                     // Redirect based on user role
                     setTimeout(() => {
-                        if (data.user.role === 'admin' || data.user.role === 'staff') {
+                        if (data.user.role === 'admin') {
                             window.location.href = '/admin/';
                         } else {
                             window.location.href = '/client/';
@@ -114,9 +147,10 @@
             
             if (sessionToken && user) {
                 const userData = JSON.parse(user);
+                console.log('Found existing session:', userData);
                 showAlert('Welcome back! Redirecting...', 'success');
                 setTimeout(() => {
-                    if (userData.role === 'admin' || userData.role === 'staff') {
+                    if (userData.role === 'admin') {
                         window.location.href = '/admin/';
                     } else {
                         window.location.href = '/client/';
