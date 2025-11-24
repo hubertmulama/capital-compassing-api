@@ -1,4 +1,180 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal - Capital Compassing</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/assets/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-chart-line"></i> Capital Compassing</h2>
+                <p>Client Portal</p>
+            </div>
+            <div class="nav-links">
+                <div class="nav-item active" data-tab="overview">
+                    <i class="fas fa-home"></i> Overview
+                </div>
+                <div class="nav-item" data-tab="accounts">
+                    <i class="fas fa-wallet"></i> My Accounts
+                </div>
+                <div class="nav-item" data-tab="eas">
+                    <i class="fas fa-robot"></i> My EAs
+                </div>
+                <div class="nav-item" data-tab="profile">
+                    <i class="fas fa-user"></i> Profile
+                </div>
+                <div class="nav-item" onclick="logout()" style="margin-top: auto;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <button class="mobile-menu" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i> Menu
+                </button>
+                <h1>Client Portal</h1>
+                <div id="userWelcome"></div>
+            </div>
+
+            <!-- Overview Tab -->
+            <div class="tab-content active" id="overview">
+                <div class="stats-grid" id="clientStatsGrid">
+                    <div class="stat-card">
+                        <i class="fas fa-wallet"></i>
+                        <div class="stat-number" id="totalAccounts">-</div>
+                        <div class="stat-label">MT5 Accounts</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-robot"></i>
+                        <div class="stat-number" id="activeEAs">-</div>
+                        <div class="stat-label">Active EAs</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="stat-number" id="tradingPairs">-</div>
+                        <div class="stat-label">Trading Pairs</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="stat-number" id="accountStatus">Active</div>
+                        <div class="stat-label">Account Status</div>
+                    </div>
+                </div>
+                
+                <div class="content-area">
+                    <h3>Welcome to Your Dashboard</h3>
+                    <p>Manage your trading accounts and expert advisors from this portal.</p>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <button class="btn" onclick="loadClientAccounts()">
+                            <i class="fas fa-sync"></i> Refresh My Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accounts Tab -->
+            <div class="tab-content" id="accounts">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>My MT5 Accounts</h3>
+                        <button class="btn" onclick="loadClientAccounts()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="result-area" id="accountsResult">
+                        Loading your accounts...
+                    </div>
+                </div>
+            </div>
+
+            <!-- EAs Tab -->
+            <div class="tab-content" id="eas">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>My Expert Advisors</h3>
+                        <button class="btn" onclick="loadClientEAs()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="result-area" id="easResult">
+                        Loading your EAs...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div class="tab-content" id="profile">
+                <div class="content-area">
+                    <h3>My Profile</h3>
+                    <div id="profileInfo">
+                        Loading profile information...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/app.js"></script>
+    <script>
+// Authentication functions for client dashboard
+function checkAuth() {
+    const sessionToken = localStorage.getItem('sessionToken');
+    const user = localStorage.getItem('user');
+    
+    if (!sessionToken || !user) {
+        window.location.href = '/login.html';
+        return null;
+    }
+    
+    return JSON.parse(user);
+}
+
+function logout() {
+    localStorage.removeItem('sessionToken');
+    localStorage.removeItem('user');
+    window.location.href = '/login.html';
+}
+
+function initializeTabs() {
+    const navItems = document.querySelectorAll('.nav-item');
+    if (navItems.length === 0) return;
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            this.classList.add('active');
+            const tabId = this.getAttribute('data-tab');
+            const tabContent = document.getElementById(tabId);
+            if (tabContent) {
+                tabContent.classList.add('active');
+            }
+            
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('active');
+            }
+        });
+    });
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+    }
+}
+
 // Client-specific JavaScript - UPDATED FOR NEW SCHEMA
 let clientData = null;
 
@@ -7,7 +183,6 @@ function initializeClientDashboard() {
     const user = checkAuth();
     if (!user) return;
 
-    // Update welcome message
     document.getElementById('userWelcome').innerHTML = '<div>Welcome, <strong>' + user.name + '</strong></div>';
 
     clientData = user;
@@ -180,4 +355,6 @@ async function updateClientStats() {
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', initializeClientDashboard);
-</script>
+    </script>
+</body>
+</html>
