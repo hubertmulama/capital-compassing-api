@@ -137,53 +137,6 @@ body {
     background: var(--warning);
 }
 
-/* Toggle Buttons */
-.btn-toggle {
-    padding: 0.4rem 0.8rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.3s ease;
-    margin: 0.2rem;
-    width: auto;
-    color: white;
-    font-weight: 500;
-    min-width: 80px;
-}
-
-.btn-toggle.btn-success {
-    background: var(--success);
-}
-
-.btn-toggle.btn-danger {
-    background: var(--danger);
-}
-
-.btn-toggle.btn-warning {
-    background: var(--warning);
-}
-
-.btn-toggle.btn-primary {
-    background: var(--primary);
-}
-
-.btn-toggle:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.btn-toggle:active {
-    transform: translateY(0);
-}
-
-.btn-toggle:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
 /* Password Toggle */
 .password-toggle {
     position: relative;
@@ -444,10 +397,6 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 th, td {
@@ -460,11 +409,34 @@ th {
     background: #f7fafc;
     font-weight: 600;
     color: var(--dark);
-    border-bottom: 2px solid #e2e8f0;
 }
 
-tr:hover {
-    background: #f8f9fa;
+/* Toggle Buttons */
+.btn-toggle {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+    margin: 0.2rem;
+    width: auto;
+    color: white;
+    font-weight: 500;
+    min-width: 80px;
+}
+
+.btn-toggle.btn-success {
+    background: var(--success);
+}
+
+.btn-toggle.btn-danger {
+    background: var(--danger);
+}
+
+.btn-toggle:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
 }
 
 /* Mobile Menu */
@@ -516,14 +488,6 @@ tr:hover {
         width: 100%;
         margin-right: 0;
     }
-    
-    table {
-        font-size: 0.8rem;
-    }
-    
-    th, td {
-        padding: 0.5rem;
-    }
 }
 
 /* Loading Spinner */
@@ -535,81 +499,3 @@ tr:hover {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
-
-/* Status Indicators */
-.status-active {
-    color: var(--success);
-    font-weight: 600;
-}
-
-.status-inactive {
-    color: var(--danger);
-    font-weight: 600;
-}
-
-.status-enabled {
-    color: var(--success);
-    font-weight: 600;
-}
-
-.status-disabled {
-    color: var(--danger);
-    font-weight: 600;
-}
-
-/* Action Buttons Container */
-.actions-container {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-/* Badges */
-.badge {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.badge-success {
-    background: var(--success);
-    color: white;
-}
-
-.badge-danger {
-    background: var(--danger);
-    color: white;
-}
-
-.badge-warning {
-    background: var(--warning);
-    color: white;
-}
-
-.badge-primary {
-    background: var(--primary);
-    color: white;
-}
-
-/* Utility Classes */
-.text-center {
-    text-align: center;
-}
-
-.text-right {
-    text-align: right;
-}
-
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-
-.p-1 { padding: 0.5rem; }
-.p-2 { padding: 1rem; }
-.p-3 { padding: 1.5rem; }
