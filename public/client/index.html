@@ -39,7 +39,7 @@ async function loadClientAccounts() {
                       LEFT JOIN account_details ad ON man.id = ad.mt5_name_id 
                       WHERE man.user_id = $1 
                       ORDER BY man.created_at DESC`,
-                params: [clientData.id]  // Changed from clientData.client_id to clientData.id
+                params: [clientData.id]
             })
         });
 
@@ -86,7 +86,7 @@ async function loadClientEAs() {
                       JOIN eas ea ON ce.ea_id = ea.id 
                       WHERE ce.client_id = $1 
                       ORDER BY ea.name`,
-                params: [clientData.id]  // client_eas still uses client_id but it now references users.id
+                params: [clientData.id]
             })
         });
 
@@ -126,7 +126,7 @@ async function loadClientProfile() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 sql: `SELECT * FROM users WHERE id = $1`,
-                params: [clientData.id]  // Changed from clientData.client_id to clientData.id
+                params: [clientData.id]
             })
         });
 
@@ -159,7 +159,7 @@ async function updateClientStats() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 sql: `SELECT COUNT(*) as count FROM mt5_account_names WHERE user_id = $1 AND state = 'active'`,
-                params: [clientData.id]  // Changed from client_id to user_id
+                params: [clientData.id]
             })
         });
         
@@ -174,7 +174,7 @@ async function updateClientStats() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 sql: `SELECT COUNT(*) as count FROM client_eas WHERE client_id = $1 AND state = 'enabled'`,
-                params: [clientData.id]  // client_eas.client_id now references users.id
+                params: [clientData.id]
             })
         });
         
