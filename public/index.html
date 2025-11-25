@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capital Compassing - Professional Trading Tools & Education</title>
+    <meta name="description" content="Advanced trading tools, expert advisors, and comprehensive education for forex and crypto traders. Join our community of successful traders.">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/assets/style.css" rel="stylesheet">
+    <style>
+        /* Homepage Specific Styles */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.05)" points="0,1000 1000,0 1000,1000"/></svg>');
+            background-size: cover;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-hero {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-hero-primary {
+            background: var(--success);
+            color: white;
+            border: 2px solid var(--success);
+        }
+
+        .btn-hero-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .features {
+            padding: 5rem 2rem;
+            background: #f8f9fa;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .stats {
+            background: var(--dark);
+            color: white;
+            padding: 4rem 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+        }
+
+        .products-showcase {
+            padding: 5rem 2rem;
+            background: white;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .products-grid-home {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-card-home {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card-home:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image-home {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .product-content-home {
+            padding: 1.5rem;
+        }
+
+        .product-badge-home {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .badge-premium {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-free {
+            background: var(--success);
+            color: white;
+        }
+
+        .product-content-home h4 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .product-content-home p {
+            color: var(--gray);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .product-price-home {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 5rem 2rem;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 2rem 1rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 2rem;
+        }
+
+        .footer-column h4 {
+            margin-bottom: 1rem;
+            color: var(--success);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-column a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column a:hover {
+            color: var(--success);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+
+        .navigation {
+            background: var(--dark);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            color: var(--success);
+        }
+
+        .nav-links-home {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links-home a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links-home a:hover {
+            color: var(--success);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-nav {
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav-login {
+            background: transparent;
+            color: white;
+            border: 2px solid var(--success);
+        }
+
+        .btn-nav-signup {
+            background: var(--success);
+            color: white;
+            border: 2px solid var(--success);
+        }
+
+        .btn-nav:hover {
+            transform: translateY(-2px);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-hero {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .nav-links-home {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--dark);
+                flex-direction: column;
+                padding: 1rem;
+                gap: 1rem;
+            }
+            
+            .nav-links-home.active {
+                display: flex;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-nav {
+                text-align: center;
+            }
+        }
+
+        /* Trust badges */
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 5rem 2rem;
+            background: #f8f9fa;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .testimonial-content {
+            font-style: italic;
+            margin-bottom: 1rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .author-info h4 {
+            margin: 0;
+            color: var(--dark);
+        }
+
+        .author-info p {
+            margin: 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navigation">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-chart-line"></i>
+                Capital Compassing
+            </a>
+            
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="nav-links-home" id="navLinks">
+                <a href="#features">Features</a>
+                <a href="#products">Products</a>
+                <a href="#education">Education</a>
+                <a href="#community">Community</a>
+                <a href="#pricing">Pricing</a>
+            </div>
+            
+            <div class="nav-buttons">
+                <a href="/login.html" class="btn-nav btn-nav-login">Login</a>
+                <a href="/register.html" class="btn-nav btn-nav-signup">Sign Up Free</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Advanced Trading Tools & Education</h1>
+            <p>Join thousands of successful traders using our AI-powered expert advisors, comprehensive courses, and vibrant trading community to maximize their profits.</p>
+            <div class="hero-buttons">
+                <a href="/register.html" class="btn-hero btn-hero-primary">
+                    <i class="fas fa-rocket"></i> Start Trading Smarter - Free
+                </a>
+                <a href="#features" class="btn-hero btn-hero-secondary">
+                    <i class="fas fa-play-circle"></i> Watch Demo
+                </a>
+            </div>
+            <div class="trust-badges">
+                <div class="trust-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secure & Regulated</span>
+                </div>
+                <div class="trust-badge">
+                    <i class="fas fa-users"></i>
+                    <span>10,000+ Traders</span>
+                </div>
+                <div class="trust-badge">
+                    <i class="fas fa-star"></i>
+                    <span>4.9/5 Rating</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2>Why Choose Capital Compassing?</h2>
+            <p>Everything you need to succeed in trading, all in one platform</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI-Powered EAs</h3>
+                <p>Advanced expert advisors that adapt to market conditions using machine learning and neural networks for optimal performance.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3>Comprehensive Education</h3>
+                <p>From beginner basics to advanced strategies, learn from professional traders with proven track records.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Vibrant Community</h3>
+                <p>Connect with thousands of traders, share strategies, and get real-time market insights from verified professionals.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Real-time Analytics</h3>
+                <p>Advanced charting tools, technical indicators, and market analysis to make informed trading decisions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Risk Management</h3>
+                <p>Built-in risk management tools and strategies to protect your capital while maximizing profit potential.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Mobile Optimized</h3>
+                <p>Trade and monitor your accounts from anywhere with our fully responsive web platform and mobile apps.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h3>10K+</h3>
+                <p>Active Traders</p>
+            </div>
+            <div class="stat-item">
+                <h3>$2.5M+</h3>
+                <p>Monthly Volume</p>
+            </div>
+            <div class="stat-item">
+                <h3>89%</h3>
+                <p>Success Rate</p>
+            </div>
+            <div class="stat-item">
+                <h3>24/7</h3>
+                <p>Support Available</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Showcase -->
+    <section class="products-showcase" id="products">
+        <div class="section-header">
+            <h2>Featured Trading Tools</h2>
+            <p>Discover our most popular expert advisors and trading indicators</p>
+        </div>
+        <div class="products-grid-home">
+            <div class="product-card-home">
+                <div class="product-image-home">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="product-content-home">
+                    <span class="product-badge-home badge-premium">Premium</span>
+                    <h4>Smart Trend EA</h4>
+                    <p>Advanced trend-following EA with AI-powered entry signals and dynamic risk management.</p>
+                    <div class="product-price-home">$149</div>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="location.href='/register.html'">
+                        <i class="fas fa-shopping-cart"></i> Get Started
+                    </button>
+                </div>
+            </div>
+            <div class="product-card-home">
+                <div class="product-image-home" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <div class="product-content-home">
+                    <span class="product-badge-home badge-free">Free</span>
+                    <h4>Grid Master EA</h4>
+                    <p>Grid trading EA with dynamic lot sizing and advanced risk management for stable returns.</p>
+                    <div class="product-price-home">Free</div>
+                    <button class="btn btn-success" style="width: 100%;" onclick="location.href='/register.html'">
+                        <i class="fas fa-download"></i> Download Free
+                    </button>
+                </div>
+            </div>
+            <div class="product-card-home">
+                <div class="product-image-home" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="product-content-home">
+                    <span class="product-badge-home badge-premium">Premium</span>
+                    <h4>Scalper Pro EA</h4>
+                    <p>High-frequency scalping EA with ultra-fast execution and tight stop losses for quick profits.</p>
+                    <div class="product-price-home">$299</div>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="location.href='/register.html'">
+                        <i class="fas fa-shopping-cart"></i> Get Started
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="section-header">
+            <h2>Success Stories</h2>
+            <p>See what our traders are saying about their experience</p>
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    "The Smart Trend EA has completely transformed my trading. I've seen a consistent 15% monthly return since I started using it. The risk management features are exceptional."
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">JS</div>
+                    <div class="author-info">
+                        <h4>John Smith</h4>
+                        <p>Forex Trader, 3+ years experience</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    "As a beginner, the education platform was invaluable. The courses are well-structured and the community support helped me avoid costly mistakes early on."
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">SJ</div>
+                    <div class="author-info">
+                        <h4>Sarah Johnson</h4>
+                        <p>Started trading 6 months ago</p>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    "The AI enhancement tools helped me optimize my custom EA, increasing my win rate by 22%. The platform pays for itself many times over."
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">MB</div>
+                    <div class="author-info">
+                        <h4>Mike Brown</h4>
+                        <p>EA Developer & Professional Trader</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to Transform Your Trading?</h2>
+            <p>Join thousands of successful traders today. Start with free tools or upgrade to premium for advanced features.</p>
+            <div class="hero-buttons">
+                <a href="/register.html" class="btn-hero btn-hero-primary">
+                    <i class="fas fa-user-plus"></i> Create Free Account
+                </a>
+                <a href="#features" class="btn-hero btn-hero-secondary">
+                    <i class="fas fa-video"></i> Watch Platform Tour
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-column">
+                <h4>Capital Compassing</h4>
+                <p>Advanced trading tools and education for modern traders. Join our community and start trading smarter today.</p>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <a href="#" style="color: white;"><i class="fab fa-twitter"></i></a>
+                    <a href="#" style="color: white;"><i class="fab fa-facebook"></i></a>
+                    <a href="#" style="color: white;"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" style="color: white;"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Platform</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#products">Products</a></li>
+                    <li><a href="#education">Education</a></li>
+                    <li><a href="#community">Community</a></li>
+                    <li><a href="/login.html">Login</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Support Center</a></li>
+                    <li><a href="#">API Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Risk Disclosure</a></li>
+                    <li><a href="#">Refund Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Capital Compassing. All rights reserved. Trading involves risk and may not be suitable for all investors.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Check if user is logged in and update navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = localStorage.getItem('user');
+            const navButtons = document.querySelector('.nav-buttons');
+            
+            if (user) {
+                const userData = JSON.parse(user);
+                navButtons.innerHTML = `
+                    <a href="/${userData.role === 'admin' ? 'admin' : 'client'}/" class="btn-nav btn-nav-login">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="#" class="btn-nav btn-nav-signup" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                `;
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('sessionToken');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
