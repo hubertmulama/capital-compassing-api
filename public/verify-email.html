@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - Capital Compassing</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/assets/style.css" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <div class="login-container">
+        <div class="login-header">
+            <h1><i class="fas fa-chart-line"></i> Capital Compassing</h1>
+            <p>Verify Your Email</p>
+        </div>
+
+        <div class="login-form">
+            <div id="alertMessage" class="alert hidden"></div>
+            
+            <div id="verificationSection">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <i class="fas fa-envelope" style="font-size: 3rem; color: #4361ee; margin-bottom: 1rem;"></i>
+                    <h3>Email Verification Required</h3>
+                    <p>Please check your email for the verification link we sent you.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="verificationToken">Verification Token</label>
+                    <input type="text" id="verificationToken" class="form-control" placeholder="Paste your verification token here">
+                </div>
+
+                <button class="btn" onclick="verifyEmail()">
+                    <i class="fas fa-check-circle"></i> Verify Email
+                </button>
+
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <p>Didn't receive the email?</p>
+                    <button class="btn btn-secondary" onclick="resendVerification()" style="width: auto;">
+                        <i class="fas fa-redo"></i> Resend Verification Email
+                    </button>
+                </div>
+            </div>
+
+            <div id="successSection" class="hidden">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <i class="fas fa-check-circle" style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;"></i>
+                    <h3>Email Verified Successfully!</h3>
+                    <p>Your email has been verified. You can now login to your account.</p>
+                </div>
+                
+                <button class="btn" onclick="window.location.href='/login.html'">
+                    <i class="fas fa-sign-in-alt"></i> Go to Login
+                </button>
+            </div>
+
+            <div class="login-links">
+                <p><a href="/login.html">← Back to Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get token from URL if present
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (token) {
+            document.getElementById('verificationToken').value = token;
+            verifyEmail();
+        }
+
+        function showAlert(message, type = 'error') {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.classList.remove('hidden');
+        }
+
+        async function verifyEmail() {
+            const token = document.getElementById('verificationToken').value.trim();
+            const verifyBtn = document.querySelector('#verificationSection .btn');
+
+            if (!token) {
+                showAlert('Please enter your verification token');
+                return;
+            }
+
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            verifyBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/auth?action=verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('verificationSection').classList.add('hidden');
+                    document.getElementById('successSection').classList.remove('hidden');
+                } else {
+                    showAlert(data.error);
+                }
+            } catch (error) {
+                showAlert('Network error. Please try again.');
+            } finally {
+                verifyBtn.innerHTML = '<i class="fas fa-check-circle"></i> Verify Email';
+                verifyBtn.disabled = false;
+            }
+        }
+
+        async function resendVerification() {
+            const email = prompt('Please enter your email address:');
+            
+            if (!email) return;
+
+            const resendBtn = document.querySelector('button[onclick="resendVerification()"]');
+            resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            resendBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/auth?action=resend-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.error);
+                }
+            } catch (error) {
+                showAlert('Network error. Please try again.');
+            } finally {
+                resendBtn.innerHTML = '<i class="fas fa-redo"></i> Resend Verification Email';
+                resendBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
