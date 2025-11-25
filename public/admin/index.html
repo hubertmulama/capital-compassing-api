@@ -41,6 +41,244 @@
             animation: slideIn 0.3s ease-out;
             cursor: pointer;
         }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .quick-action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+
+        .quick-action-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .revenue-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .revenue-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .revenue-card h4 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .revenue-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .revenue-change {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .revenue-change.positive {
+            color: #10b981;
+        }
+
+        .revenue-change.negative {
+            color: #ef4444;
+        }
+
+        .activity-feed {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+        }
+
+        .activity-icon.success {
+            background: #10b981;
+        }
+
+        .activity-icon.warning {
+            background: #f59e0b;
+        }
+
+        .activity-icon.info {
+            background: #3b82f6;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-content strong {
+            color: var(--dark);
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .user-management-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .user-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-info strong {
+            display: block;
+            color: var(--dark);
+        }
+
+        .user-info span {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .user-stat {
+            text-align: center;
+        }
+
+        .user-stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .user-stat-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .product-management {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .product-form {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .product-list {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 1.5rem 0;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
@@ -58,11 +296,23 @@
                 <div class="nav-item" data-tab="users">
                     <i class="fas fa-users"></i> Users
                 </div>
+                <div class="nav-item" data-tab="products">
+                    <i class="fas fa-store"></i> Products
+                </div>
                 <div class="nav-item" data-tab="eas">
                     <i class="fas fa-robot"></i> Expert Advisors
                 </div>
+                <div class="nav-item" data-tab="education">
+                    <i class="fas fa-graduation-cap"></i> Education
+                </div>
                 <div class="nav-item" data-tab="trading">
                     <i class="fas fa-chart-bar"></i> Trading Pairs
+                </div>
+                <div class="nav-item" data-tab="revenue">
+                    <i class="fas fa-money-bill-wave"></i> Revenue
+                </div>
+                <div class="nav-item" data-tab="analytics">
+                    <i class="fas fa-chart-pie"></i> Analytics
                 </div>
                 <div class="nav-item" data-tab="sql">
                     <i class="fas fa-database"></i> SQL Query Tool
@@ -108,22 +358,139 @@
                         <div class="stat-number">-</div>
                         <div class="stat-label">Account Records</div>
                     </div>
+                    <div class="stat-card">
+                        <i class="fas fa-shopping-cart"></i>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Products</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-graduation-cap"></i>
+                        <div class="stat-number">-</div>
+                        <div class="stat-label">Courses</div>
+                    </div>
                 </div>
-                
+
+                <!-- Quick Actions -->
                 <div class="content-area">
                     <h3>Quick Actions</h3>
-                    <button class="btn" onclick="loadTable('users')">
-                        <i class="fas fa-users"></i> View Users
-                    </button>
-                    <button class="btn" onclick="loadTable('eas')">
-                        <i class="fas fa-robot"></i> View EAs
-                    </button>
-                    <button class="btn" onclick="loadTable('trading_pairs')">
-                        <i class="fas fa-chart-bar"></i> View Trading Pairs
-                    </button>
-                    <button class="btn" onclick="runQuery('SELECT * FROM account_details ORDER BY updated_at DESC LIMIT 10;')">
-                        <i class="fas fa-wallet"></i> Recent Accounts
-                    </button>
+                    <div class="quick-actions">
+                        <div class="quick-action-card" onclick="loadTable('users')">
+                            <i class="fas fa-user-plus"></i>
+                            <h4>Manage Users</h4>
+                            <p>View and manage all users</p>
+                        </div>
+                        <div class="quick-action-card" onclick="switchTab('products')">
+                            <i class="fas fa-plus-circle"></i>
+                            <h4>Add Product</h4>
+                            <p>Create new EA or course</p>
+                        </div>
+                        <div class="quick-action-card" onclick="loadTable('eas')">
+                            <i class="fas fa-robot"></i>
+                            <h4>EA Management</h4>
+                            <p>Manage Expert Advisors</p>
+                        </div>
+                        <div class="quick-action-card" onclick="switchTab('revenue')">
+                            <i class="fas fa-chart-line"></i>
+                            <h4>View Revenue</h4>
+                            <p>Check earnings & reports</p>
+                        </div>
+                        <div class="quick-action-card" onclick="runQuery('SELECT * FROM account_details ORDER BY updated_at DESC LIMIT 10;')">
+                            <i class="fas fa-wallet"></i>
+                            <h4>Recent Accounts</h4>
+                            <p>View latest account activity</p>
+                        </div>
+                        <div class="quick-action-card" onclick="runQuery('SELECT * FROM products WHERE status = \\'active\\' LIMIT 5;')">
+                            <i class="fas fa-store"></i>
+                            <h4>Active Products</h4>
+                            <p>View available products</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue Overview -->
+                <div class="content-area">
+                    <h3>Revenue Overview</h3>
+                    <div class="revenue-stats">
+                        <div class="revenue-card">
+                            <h4>Today's Revenue</h4>
+                            <div class="revenue-amount">$1,247.50</div>
+                            <div class="revenue-change positive">+12.5% from yesterday</div>
+                        </div>
+                        <div class="revenue-card">
+                            <h4>Weekly Revenue</h4>
+                            <div class="revenue-amount">$8,452.75</div>
+                            <div class="revenue-change positive">+8.3% from last week</div>
+                        </div>
+                        <div class="revenue-card">
+                            <h4>Monthly Revenue</h4>
+                            <div class="revenue-amount">$34,189.20</div>
+                            <div class="revenue-change positive">+15.2% from last month</div>
+                        </div>
+                        <div class="revenue-card">
+                            <h4>Total Users</h4>
+                            <div class="revenue-amount">1,247</div>
+                            <div class="revenue-change positive">+24 new today</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="content-area">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <div class="activity-icon success">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="activity-content">
+                                <strong>New EA Purchase</strong>
+                                <p>John Doe purchased "Smart Trend EA"</p>
+                                <div class="activity-time">2 minutes ago</div>
+                            </div>
+                            <div class="revenue-amount">$149.00</div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon info">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <strong>New User Registration</strong>
+                                <p>Sarah Smith joined the platform</p>
+                                <div class="activity-time">15 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon success">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="activity-content">
+                                <strong>EA Download</strong>
+                                <p>Mike Johnson downloaded "Grid Master EA"</p>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <strong>Account Issue</strong>
+                                <p>MT5 account connection failed for user #234</p>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon success">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="activity-content">
+                                <strong>Course Enrollment</strong>
+                                <p>Emily Brown enrolled in "EA Development Masterclass"</p>
+                                <div class="activity-time">3 hours ago</div>
+                            </div>
+                            <div class="revenue-amount">$199.00</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -147,8 +514,251 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- User Management Grid -->
+                    <div class="user-management-grid">
+                        <div class="user-card">
+                            <div class="user-header">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="user-info">
+                                    <strong>John Trader</strong>
+                                    <span>john.trader@email.com</span>
+                                </div>
+                            </div>
+                            <div class="user-stats">
+                                <div class="user-stat">
+                                    <div class="user-stat-number">3</div>
+                                    <div class="user-stat-label">EAs</div>
+                                </div>
+                                <div class="user-stat">
+                                    <div class="user-stat-number">2</div>
+                                    <div class="user-stat-label">Accounts</div>
+                                </div>
+                                <div class="user-stat">
+                                    <div class="user-stat-number">$245</div>
+                                    <div class="user-stat-label">Spent</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button class="btn btn-primary" style="flex: 1;">View Profile</button>
+                                <button class="btn btn-secondary">Message</button>
+                            </div>
+                        </div>
+
+                        <div class="user-card">
+                            <div class="user-header">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="user-info">
+                                    <strong>Sarah Investor</strong>
+                                    <span>sarah.investor@email.com</span>
+                                </div>
+                            </div>
+                            <div class="user-stats">
+                                <div class="user-stat">
+                                    <div class="user-stat-number">5</div>
+                                    <div class="user-stat-label">EAs</div>
+                                </div>
+                                <div class="user-stat">
+                                    <div class="user-stat-number">1</div>
+                                    <div class="user-stat-label">Accounts</div>
+                                </div>
+                                <div class="user-stat">
+                                    <div class="user-stat-number">$599</div>
+                                    <div class="user-stat-label">Spent</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button class="btn btn-primary" style="flex: 1;">View Profile</button>
+                                <button class="btn btn-secondary">Message</button>
+                            </div>
+                        </div>
+
+                        <div class="user-card">
+                            <div class="user-header">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="user-info">
+                                    <strong>Mike Developer</strong>
+                                    <span>mike.dev@email.com</span>
+                                </div>
+                            </div>
+                            <div class="user-stats">
+                                <div class="user-stat">
+                                    <div class="user-stat-number">2</div>
+                                    <div class="user-stat-label">EAs</div>
+                                </div>
+                                <div class="user-stat">
+                                    <div class="user-stat-number">1</div>
+                                    <div class="user-stat-label">Accounts</div>
+                                </div>
+                                <div class="user-stat">
+                                    <div class="user-stat-number">$398</div>
+                                    <div class="user-stat-label">Spent</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button class="btn btn-primary" style="flex: 1;">View Profile</button>
+                                <button class="btn btn-secondary">Message</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="result-area" id="usersResult">
                         Click "Load Users" to view user data
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Tab -->
+            <div class="tab-content" id="products">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>Products Management</h3>
+                        <div>
+                            <button class="btn" onclick="loadTable('products')">
+                                <i class="fas fa-sync"></i> Load Products
+                            </button>
+                            <button class="btn btn-success" onclick="showAddProductModal()">
+                                <i class="fas fa-plus"></i> Add Product
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="product-management">
+                        <!-- Product Form -->
+                        <div class="product-form">
+                            <h4>Add New Product</h4>
+                            <form id="productForm">
+                                <div class="form-group">
+                                    <label>Product Name</label>
+                                    <input type="text" class="form-control" placeholder="Enter product name">
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Product Type</label>
+                                        <select class="form-control">
+                                            <option value="ea">Expert Advisor</option>
+                                            <option value="course">Course</option>
+                                            <option value="indicator">Indicator</option>
+                                            <option value="strategy">Strategy</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Category</label>
+                                        <select class="form-control">
+                                            <option value="forex">Forex</option>
+                                            <option value="crypto">Crypto</option>
+                                            <option value="stocks">Stocks</option>
+                                            <option value="education">Education</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Price ($)</label>
+                                        <input type="number" class="form-control" placeholder="0.00" step="0.01">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Discount Price ($)</label>
+                                        <input type="number" class="form-control" placeholder="0.00" step="0.01">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea class="form-control" rows="3" placeholder="Product description"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"> Featured Product
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Save Product
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Product List -->
+                        <div class="product-list">
+                            <h4>Recent Products</h4>
+                            <div class="products-grid">
+                                <div class="product-card">
+                                    <div class="product-badge premium">Premium</div>
+                                    <div class="product-image">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="product-info">
+                                        <h4>Smart Trend EA</h4>
+                                        <p class="product-description">Advanced trend-following EA</p>
+                                        <div class="product-meta">
+                                            <span class="rating">⭐ 4.8</span>
+                                            <span class="downloads">📥 2.4K</span>
+                                        </div>
+                                        <div class="product-price">
+                                            <span class="current-price">$149</span>
+                                        </div>
+                                        <div class="product-actions">
+                                            <button class="btn btn-primary">Edit</button>
+                                            <button class="btn btn-danger">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="product-card">
+                                    <div class="product-badge free">Free</div>
+                                    <div class="product-image">
+                                        <i class="fas fa-chart-pie"></i>
+                                    </div>
+                                    <div class="product-info">
+                                        <h4>Grid Master EA</h4>
+                                        <p class="product-description">Grid trading EA</p>
+                                        <div class="product-meta">
+                                            <span class="rating">⭐ 4.5</span>
+                                            <span class="downloads">📥 1.8K</span>
+                                        </div>
+                                        <div class="product-price">
+                                            <span class="current-price">Free</span>
+                                        </div>
+                                        <div class="product-actions">
+                                            <button class="btn btn-primary">Edit</button>
+                                            <button class="btn btn-danger">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="product-card">
+                                    <div class="product-badge premium">Premium</div>
+                                    <div class="product-image">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <div class="product-info">
+                                        <h4>EA Development Course</h4>
+                                        <p class="product-description">Learn to create EAs</p>
+                                        <div class="product-meta">
+                                            <span class="rating">⭐ 4.9</span>
+                                            <span class="downloads">📥 892</span>
+                                        </div>
+                                        <div class="product-price">
+                                            <span class="current-price">$199</span>
+                                        </div>
+                                        <div class="product-actions">
+                                            <button class="btn btn-primary">Edit</button>
+                                            <button class="btn btn-danger">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -176,6 +786,85 @@
                 </div>
             </div>
 
+            <!-- Education Tab -->
+            <div class="tab-content" id="education">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>Education Management</h3>
+                        <div>
+                            <button class="btn" onclick="loadTable('courses')">
+                                <i class="fas fa-sync"></i> Load Courses
+                            </button>
+                            <button class="btn btn-success" onclick="showAddCourseModal()">
+                                <i class="fas fa-plus"></i> Add Course
+                            </button>
+                            <button class="btn" onclick="runQuery('SELECT c.*, COUNT(up.id) as enrolled_students FROM courses c LEFT JOIN user_progress up ON c.id = up.course_id GROUP BY c.id;')">
+                                <i class="fas fa-chart-bar"></i> Course Stats
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="courses-grid">
+                        <div class="course-card">
+                            <div class="course-image" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="course-info">
+                                <h5>EA Development Masterclass</h5>
+                                <p>Learn to create profitable Expert Advisors</p>
+                                <div class="course-meta">
+                                    <span>🕒 12 hours</span>
+                                    <span>👥 245 students</span>
+                                </div>
+                                <div class="course-price">$199</div>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                    <button class="btn btn-primary" style="flex: 1;">Edit</button>
+                                    <button class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="course-card">
+                            <div class="course-image" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="course-info">
+                                <h5>Technical Analysis Pro</h5>
+                                <p>Master chart patterns and indicators</p>
+                                <div class="course-meta">
+                                    <span>🕒 8 hours</span>
+                                    <span>👥 189 students</span>
+                                </div>
+                                <div class="course-price">$149</div>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                    <button class="btn btn-primary" style="flex: 1;">Edit</button>
+                                    <button class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="course-card">
+                            <div class="course-image" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="course-info">
+                                <h5>Risk Management</h5>
+                                <p>Protect your capital like a pro</p>
+                                <div class="course-meta">
+                                    <span>🕒 6 hours</span>
+                                    <span>👥 167 students</span>
+                                </div>
+                                <div class="course-price">$129</div>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                    <button class="btn btn-primary" style="flex: 1;">Edit</button>
+                                    <button class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Trading Pairs Tab -->
             <div class="tab-content" id="trading">
                 <div class="content-area">
@@ -199,6 +888,164 @@
                 </div>
             </div>
 
+            <!-- Revenue Tab -->
+            <div class="tab-content" id="revenue">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>Revenue Analytics</h3>
+                        <div>
+                            <button class="btn" onclick="loadRevenueData()">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                            <button class="btn" onclick="runQuery('SELECT product_type, SUM(amount_paid) as total FROM purchases GROUP BY product_type;')">
+                                <i class="fas fa-chart-pie"></i> By Product Type
+                            </button>
+                            <button class="btn" onclick="runQuery('SELECT DATE(created_at) as date, SUM(amount_paid) as daily_revenue FROM purchases GROUP BY DATE(created_at) ORDER BY date DESC LIMIT 7;')">
+                                <i class="fas fa-calendar"></i> Last 7 Days
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Charts -->
+                    <div class="chart-container">
+                        <h4>Revenue Overview</h4>
+                        <div class="chart-placeholder">
+                            📊 Revenue Charts Coming Soon
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+                        <div class="content-area">
+                            <h4>Top Products</h4>
+                            <div class="result-area">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Revenue</th>
+                                        <th>Sales</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Smart Trend EA</td>
+                                        <td>$14,900</td>
+                                        <td>100</td>
+                                    </tr>
+                                    <tr>
+                                        <td>EA Development Course</td>
+                                        <td>$9,950</td>
+                                        <td>50</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Scalper Pro EA</td>
+                                        <td>$8,970</td>
+                                        <td>30</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Technical Analysis Pro</td>
+                                        <td>$4,470</td>
+                                        <td>30</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="content-area">
+                            <h4>Recent Transactions</h4>
+                            <div class="result-area">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Product</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                    <tr>
+                                        <td>John Doe</td>
+                                        <td>Smart Trend EA</td>
+                                        <td>$149</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sarah Smith</td>
+                                        <td>EA Development Course</td>
+                                        <td>$199</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mike Johnson</td>
+                                        <td>Risk Management Course</td>
+                                        <td>$129</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Emily Brown</td>
+                                        <td>Scalper Pro EA</td>
+                                        <td>$299</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div class="tab-content" id="analytics">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>Platform Analytics</h3>
+                        <div>
+                            <button class="btn" onclick="loadAnalytics()">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                            <button class="btn" onclick="runQuery('SELECT role, COUNT(*) as count FROM users GROUP BY role;')">
+                                <i class="fas fa-users"></i> User Roles
+                            </button>
+                            <button class="btn" onclick="runQuery('SELECT state, COUNT(*) as count FROM users GROUP BY state;')">
+                                <i class="fas fa-chart-bar"></i> User Status
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+                        <div class="chart-container">
+                            <h4>User Growth</h4>
+                            <div class="chart-placeholder">
+                                📈 User Growth Chart
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <h4>Product Performance</h4>
+                            <div class="chart-placeholder">
+                                📊 Product Performance Chart
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-area" style="margin-top: 1.5rem;">
+                        <h4>Platform Statistics</h4>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <i class="fas fa-user-clock"></i>
+                                <div class="stat-number">87%</div>
+                                <div class="stat-label">Active Users</div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-download"></i>
+                                <div class="stat-number">4.2K</div>
+                                <div class="stat-label">Total Downloads</div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-shopping-cart"></i>
+                                <div class="stat-number">324</div>
+                                <div class="stat-label">Monthly Sales</div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-star"></i>
+                                <div class="stat-number">4.7</div>
+                                <div class="stat-label">Avg Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- SQL Query Tool Tab -->
             <div class="tab-content" id="sql">
                 <div class="content-area">
@@ -209,6 +1056,7 @@
                         <button class="btn" onclick="runQuery('SELECT * FROM users WHERE role = \\'client\\' LIMIT 5;')">Test Users</button>
                         <button class="btn" onclick="runQuery('SELECT * FROM eas LIMIT 5;')">Test EAs</button>
                         <button class="btn" onclick="runQuery('SELECT * FROM trading_pairs LIMIT 5;')">Test Pairs</button>
+                        <button class="btn" onclick="runQuery('SELECT * FROM products LIMIT 5;')">Test Products</button>
                     </div>
                     <div class="result-area" id="sqlResult">
                         Run a query to see results...
@@ -218,388 +1066,422 @@
         </div>
     </div>
 
+    <script src="/assets/app.js"></script>
     <script>
-// Authentication functions for admin dashboard
-function checkAuth() {
-    const sessionToken = localStorage.getItem('sessionToken');
-    const user = localStorage.getItem('user');
-    
-    if (!sessionToken || !user) {
-        window.location.href = '/login.html';
-        return null;
-    }
-    
-    const userData = JSON.parse(user);
-    
-    // Check if user has admin privileges
-    if (userData.role !== 'admin' && userData.role !== 'staff') {
-        window.location.href = '/client/';
-        return null;
-    }
-    
-    return userData;
-}
+        // Authentication functions for admin dashboard
+        function checkAuth() {
+            const sessionToken = localStorage.getItem('sessionToken');
+            const user = localStorage.getItem('user');
+            
+            if (!sessionToken || !user) {
+                window.location.href = '/login.html';
+                return null;
+            }
+            
+            const userData = JSON.parse(user);
+            
+            // Check if user has admin privileges
+            if (userData.role !== 'admin' && userData.role !== 'staff') {
+                window.location.href = '/client/';
+                return null;
+            }
+            
+            return userData;
+        }
 
-function logout() {
-    localStorage.removeItem('sessionToken');
-    localStorage.removeItem('user');
-    window.location.href = '/login.html';
-}
+        function logout() {
+            localStorage.removeItem('sessionToken');
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+        }
 
-function initializeTabs() {
-    const navItems = document.querySelectorAll('.nav-item');
-    if (navItems.length === 0) return;
-    
-    navItems.forEach(item => {
-        item.addEventListener('click', function() {
+        function initializeTabs() {
+            const navItems = document.querySelectorAll('.nav-item');
+            if (navItems.length === 0) return;
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    const tabContent = document.getElementById(tabId);
+                    if (tabContent) {
+                        tabContent.classList.add('active');
+                    }
+                    
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        function switchTab(tabName) {
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             
-            this.classList.add('active');
-            const tabId = this.getAttribute('data-tab');
-            const tabContent = document.getElementById(tabId);
-            if (tabContent) {
-                tabContent.classList.add('active');
-            }
+            const navItem = document.querySelector(`[data-tab="${tabName}"]`);
+            const tabContent = document.getElementById(tabName);
             
+            if (navItem) navItem.classList.add('active');
+            if (tabContent) tabContent.classList.add('active');
+        }
+
+        function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             if (sidebar) {
-                sidebar.classList.remove('active');
+                sidebar.classList.toggle('active');
             }
-        });
-    });
-}
+        }
 
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        sidebar.classList.toggle('active');
-    }
-}
-
-// Enhanced showAlert function with popups
-function showAlert(message, type = 'error') {
-    // Remove any existing alerts first
-    const existingAlert = document.getElementById('alertPopup');
-    if (existingAlert) {
-        existingAlert.remove();
-    }
-    
-    // Create new alert
-    const alertDiv = document.createElement('div');
-    alertDiv.id = 'alertPopup';
-    alertDiv.className = `alert-popup alert-${type}`;
-    
-    // Add icon based on type
-    let icon = '❌';
-    if (type === 'success') icon = '✅';
-    if (type === 'warning') icon = '⚠️';
-    
-    alertDiv.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <span style="font-size: 1.2rem;">${icon}</span>
-            <span style="font-weight: 500;">${message}</span>
-        </div>
-    `;
-    
-    document.body.appendChild(alertDiv);
-    
-    // Auto-hide success messages after 3 seconds
-    if (type === 'success') {
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
+        // Enhanced showAlert function with popups
+        function showAlert(message, type = 'error') {
+            // Remove any existing alerts first
+            const existingAlert = document.getElementById('alertPopup');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            // Create new alert
+            const alertDiv = document.createElement('div');
+            alertDiv.id = 'alertPopup';
+            alertDiv.className = `alert-popup alert-${type}`;
+            
+            // Add icon based on type
+            let icon = '❌';
+            if (type === 'success') icon = '✅';
+            if (type === 'warning') icon = '⚠️';
+            
+            alertDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem;">${icon}</span>
+                    <span style="font-weight: 500;">${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Auto-hide success messages after 3 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.style.animation = 'slideOut 0.3s ease-in';
+                        setTimeout(() => {
+                            if (alertDiv.parentNode) {
+                                alertDiv.remove();
+                            }
+                        }, 300);
+                    }
+                }, 3000);
+            }
+            
+            // Add click to dismiss for all alerts
+            alertDiv.addEventListener('click', () => {
                 alertDiv.style.animation = 'slideOut 0.3s ease-in';
                 setTimeout(() => {
                     if (alertDiv.parentNode) {
                         alertDiv.remove();
                     }
                 }, 300);
-            }
-        }, 3000);
-    }
-    
-    // Add click to dismiss for all alerts
-    alertDiv.addEventListener('click', () => {
-        alertDiv.style.animation = 'slideOut 0.3s ease-in';
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 300);
-    });
-}
+            });
+        }
 
-// Create HTML table from data
-function createTableHTML(rows, tableName = '') {
-    if (rows.length === 0) return '<div>No data found</div>';
-    
-    let html = '<h4>Results (' + rows.length + ' rows)</h4>';
-    html += '<div style="overflow-x: auto;"><table><tr>';
-    
-    // Header - add Actions column if table has state
-    const hasState = rows[0].state !== undefined;
-    Object.keys(rows[0]).forEach(key => {
-        html += '<th>' + key + '</th>';
-    });
-    if (hasState && tableName) {
-        html += '<th>Actions</th>';
-    }
-    html += '</tr>';
-    
-    // Rows
-    rows.forEach(row => {
-        html += '<tr>';
-        Object.values(row).forEach(value => {
-            html += '<td>' + (value === null ? 'NULL' : value) + '</td>';
-        });
-        
-        // Add toggle button if table has state
-        if (hasState && tableName) {
-            // Determine correct state values for each table type
-            let isActive, newState, buttonText, buttonClass;
+        // Create HTML table from data
+        function createTableHTML(rows, tableName = '') {
+            if (rows.length === 0) return '<div>No data found</div>';
             
-            if (tableName === 'users' || tableName === 'mt5_account_names') {
-                // Users and MT5 accounts use 'active'/'inactive'
-                isActive = row.state === 'active';
-                newState = isActive ? 'inactive' : 'active';
-                buttonText = isActive ? 'Deactivate' : 'Activate';
-                buttonClass = isActive ? 'btn-danger' : 'btn-success';
-            } else {
-                // Other tables use 'enabled'/'disabled'
-                isActive = row.state === 'enabled';
-                newState = isActive ? 'disabled' : 'enabled';
-                buttonText = isActive ? 'Disable' : 'Enable';
-                buttonClass = isActive ? 'btn-danger' : 'btn-success';
+            let html = '<h4>Results (' + rows.length + ' rows)</h4>';
+            html += '<div style="overflow-x: auto;"><table><tr>';
+            
+            // Header - add Actions column if table has state
+            const hasState = rows[0].state !== undefined;
+            Object.keys(rows[0]).forEach(key => {
+                html += '<th>' + key + '</th>';
+            });
+            if (hasState && tableName) {
+                html += '<th>Actions</th>';
+            }
+            html += '</tr>';
+            
+            // Rows
+            rows.forEach(row => {
+                html += '<tr>';
+                Object.values(row).forEach(value => {
+                    html += '<td>' + (value === null ? 'NULL' : value) + '</td>';
+                });
+                
+                // Add toggle button if table has state
+                if (hasState && tableName) {
+                    // Determine correct state values for each table type
+                    let isActive, newState, buttonText, buttonClass;
+                    
+                    if (tableName === 'users' || tableName === 'mt5_account_names') {
+                        // Users and MT5 accounts use 'active'/'inactive'
+                        isActive = row.state === 'active';
+                        newState = isActive ? 'inactive' : 'active';
+                        buttonText = isActive ? 'Deactivate' : 'Activate';
+                        buttonClass = isActive ? 'btn-danger' : 'btn-success';
+                    } else {
+                        // Other tables use 'enabled'/'disabled'
+                        isActive = row.state === 'enabled';
+                        newState = isActive ? 'disabled' : 'enabled';
+                        buttonText = isActive ? 'Disable' : 'Enable';
+                        buttonClass = isActive ? 'btn-danger' : 'btn-success';
+                    }
+                    
+                    html += `<td>
+                        <button class="btn-toggle ${buttonClass}" 
+                                onclick="toggleState('${tableName}', ${row.id}, '${newState}')"
+                                data-id="${row.id}"
+                                data-table="${tableName}"
+                                style="transition: all 0.3s ease;">
+                            ${buttonText}
+                        </button>
+                    </td>`;
+                }
+                html += '</tr>';
+            });
+            
+            html += '</table></div>';
+            return html;
+        }
+
+        // Toggle state function
+        async function toggleState(tableName, id, newState) {
+            console.log(`Toggling ${tableName} ID ${id} to ${newState}`);
+            
+            try {
+                const response = await fetch('/api/admin?action=data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        sql: `UPDATE ${tableName} SET state = $1 WHERE id = $2 RETURNING *`,
+                        params: [newState, id]
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success popup
+                    showAlert(`✅ ${tableName} ID ${id} ${newState} successfully!`, 'success');
+                    
+                    // Auto-refresh the current table immediately
+                    reloadCurrentTable();
+                } else {
+                    showAlert(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Request failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Reload current table
+        function reloadCurrentTable() {
+            const activeTab = document.querySelector('.nav-item.active');
+            if (activeTab) {
+                const tabId = activeTab.getAttribute('data-tab');
+                console.log('Reloading tab:', tabId);
+                
+                // Immediately reload the appropriate table
+                if (tabId === 'users') {
+                    loadTable('users');
+                } else if (tabId === 'eas') {
+                    loadTable('eas');
+                } else if (tabId === 'trading') {
+                    loadTable('trading_pairs');
+                } else if (tabId === 'products') {
+                    loadTable('products');
+                }
+            }
+        }
+
+        // Load table data
+        async function loadTable(tableName) {
+            console.log('Loading table:', tableName);
+            
+            const elementMap = {
+                'users': 'usersResult',
+                'eas': 'easResult', 
+                'trading_pairs': 'tradingResult',
+                'products': 'productsResult'
+            };
+            
+            const elementId = elementMap[tableName];
+            const resultDiv = document.getElementById(elementId);
+            
+            if (!resultDiv) {
+                console.error('Element not found:', elementId);
+                return;
             }
             
-            html += `<td>
-                <button class="btn-toggle ${buttonClass}" 
-                        onclick="toggleState('${tableName}', ${row.id}, '${newState}')"
-                        data-id="${row.id}"
-                        data-table="${tableName}"
-                        style="transition: all 0.3s ease;">
-                    ${buttonText}
-                </button>
-            </td>`;
-        }
-        html += '</tr>';
-    });
-    
-    html += '</table></div>';
-    return html;
-}
-
-// Toggle state function - UPDATED WITH AUTO-REFRESH
-async function toggleState(tableName, id, newState) {
-    console.log(`Toggling ${tableName} ID ${id} to ${newState}`);
-    
-    try {
-        const response = await fetch('/api/admin?action=data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                sql: `UPDATE ${tableName} SET state = $1 WHERE id = $2 RETURNING *`,
-                params: [newState, id]
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            // Show success popup
-            showAlert(`✅ ${tableName} ID ${id} ${newState} successfully!`, 'success');
+            resultDiv.innerHTML = 'Loading...';
             
-            // Auto-refresh the current table immediately
-            reloadCurrentTable();
-        } else {
-            showAlert(`❌ Error: ${data.error}`, 'error');
-        }
-    } catch (error) {
-        showAlert(`❌ Request failed: ${error.message}`, 'error');
-    }
-}
-
-// Reload current table - IMPROVED
-function reloadCurrentTable() {
-    const activeTab = document.querySelector('.nav-item.active');
-    if (activeTab) {
-        const tabId = activeTab.getAttribute('data-tab');
-        console.log('Reloading tab:', tabId);
-        
-        // Immediately reload the appropriate table
-        if (tabId === 'users') {
-            loadTable('users');
-        } else if (tabId === 'eas') {
-            loadTable('eas');
-        } else if (tabId === 'trading') {
-            loadTable('trading_pairs');
-        }
-    }
-}
-
-// Load table data
-async function loadTable(tableName) {
-    console.log('Loading table:', tableName);
-    
-    const elementMap = {
-        'users': 'usersResult',
-        'eas': 'easResult', 
-        'trading_pairs': 'tradingResult'
-    };
-    
-    const elementId = elementMap[tableName];
-    const resultDiv = document.getElementById(elementId);
-    
-    if (!resultDiv) {
-        console.error('Element not found:', elementId);
-        return;
-    }
-    
-    resultDiv.innerHTML = 'Loading...';
-    
-    try {
-        let query = `SELECT * FROM ${tableName} ORDER BY id LIMIT 20;`;
-        
-        // Special queries for joined tables
-        if (tableName === 'client_eas') {
-            query = `
-                SELECT ce.*, u.name as user_name, ea.name as ea_name 
-                FROM client_eas ce
-                LEFT JOIN users u ON ce.client_id = u.id
-                LEFT JOIN eas ea ON ce.ea_id = ea.id
-                ORDER BY ce.id LIMIT 20;
-            `;
-        } else if (tableName === 'mt5_account_names') {
-            query = `
-                SELECT man.*, u.name as user_name 
-                FROM mt5_account_names man
-                LEFT JOIN users u ON man.user_id = u.id
-                ORDER BY man.id LIMIT 20;
-            `;
-        } else if (tableName === 'ea_pair_assignments') {
-            query = `
-                SELECT epa.*, ea.name as ea_name, tp.pair as pair_name 
-                FROM ea_pair_assignments epa
-                LEFT JOIN eas ea ON epa.ea_id = ea.id
-                LEFT JOIN trading_pairs tp ON epa.pair_id = tp.id
-                ORDER BY epa.id LIMIT 20;
-            `;
-        } else if (tableName === 'users') {
-            query = `
-                SELECT id, name, email, role, state, created_at 
-                FROM users 
-                ORDER BY id LIMIT 20;
-            `;
-        }
-        
-        const response = await fetch('/api/admin?action=data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sql: query })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            if (data.rows.length > 0) {
-                resultDiv.innerHTML = createTableHTML(data.rows, tableName);
-            } else {
-                resultDiv.innerHTML = '<div style="color: green;">✅ No data found</div>';
+            try {
+                let query = `SELECT * FROM ${tableName} ORDER BY id LIMIT 20;`;
+                
+                // Special queries for joined tables
+                if (tableName === 'client_eas') {
+                    query = `
+                        SELECT ce.*, u.name as user_name, ea.name as ea_name 
+                        FROM client_eas ce
+                        LEFT JOIN users u ON ce.client_id = u.id
+                        LEFT JOIN eas ea ON ce.ea_id = ea.id
+                        ORDER BY ce.id LIMIT 20;
+                    `;
+                } else if (tableName === 'mt5_account_names') {
+                    query = `
+                        SELECT man.*, u.name as user_name 
+                        FROM mt5_account_names man
+                        LEFT JOIN users u ON man.user_id = u.id
+                        ORDER BY man.id LIMIT 20;
+                    `;
+                } else if (tableName === 'ea_pair_assignments') {
+                    query = `
+                        SELECT epa.*, ea.name as ea_name, tp.pair as pair_name 
+                        FROM ea_pair_assignments epa
+                        LEFT JOIN eas ea ON epa.ea_id = ea.id
+                        LEFT JOIN trading_pairs tp ON epa.pair_id = tp.id
+                        ORDER BY epa.id LIMIT 20;
+                    `;
+                } else if (tableName === 'users') {
+                    query = `
+                        SELECT id, name, email, role, state, created_at 
+                        FROM users 
+                        ORDER BY id LIMIT 20;
+                    `;
+                }
+                
+                const response = await fetch('/api/admin?action=data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sql: query })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.rows.length > 0) {
+                        resultDiv.innerHTML = createTableHTML(data.rows, tableName);
+                    } else {
+                        resultDiv.innerHTML = '<div style="color: green;">✅ No data found</div>';
+                    }
+                } else {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Error: ' + data.error + '</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
             }
-        } else {
-            resultDiv.innerHTML = '<div style="color: red;">❌ Error: ' + data.error + '</div>';
         }
-    } catch (error) {
-        resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
-    }
-}
 
-// Run SQL query
-async function runQuery(customQuery = null) {
-    const sqlEditor = document.getElementById('sqlEditor');
-    const resultDiv = document.getElementById('sqlResult');
-    
-    if (!resultDiv) return;
-    
-    const sql = customQuery || (sqlEditor ? sqlEditor.value : '');
-    resultDiv.innerHTML = 'Running query...';
-    
-    try {
-        const response = await fetch('/api/admin?action=data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sql })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            if (data.rows.length > 0) {
-                resultDiv.innerHTML = createTableHTML(data.rows);
-            } else {
-                resultDiv.innerHTML = '<div style="color: green;">✅ Query executed successfully. Rows affected: ' + data.rowCount + '</div>';
+        // Run SQL query
+        async function runQuery(customQuery = null) {
+            const sqlEditor = document.getElementById('sqlEditor');
+            const resultDiv = document.getElementById('sqlResult');
+            
+            if (!resultDiv) return;
+            
+            const sql = customQuery || (sqlEditor ? sqlEditor.value : '');
+            resultDiv.innerHTML = 'Running query...';
+            
+            try {
+                const response = await fetch('/api/admin?action=data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sql })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.rows.length > 0) {
+                        resultDiv.innerHTML = createTableHTML(data.rows);
+                    } else {
+                        resultDiv.innerHTML = '<div style="color: green;">✅ Query executed successfully. Rows affected: ' + data.rowCount + '</div>';
+                    }
+                } else {
+                    resultDiv.innerHTML = '<div style="color: red;">❌ Error: ' + data.error + '</div>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
             }
-        } else {
-            resultDiv.innerHTML = '<div style="color: red;">❌ Error: ' + data.error + '</div>';
         }
-    } catch (error) {
-        resultDiv.innerHTML = '<div style="color: red;">❌ Request failed: ' + error.message + '</div>';
-    }
-}
 
-// Load dashboard stats
-async function refreshStats() {
-    const statsGrid = document.getElementById('statsGrid');
-    if (!statsGrid) return;
-    
-    const statCards = statsGrid.querySelectorAll('.stat-number');
-    if (statCards.length === 0) return;
-    
-    // Show loading
-    statCards.forEach(card => card.textContent = '...');
-    
-    try {
-        const queries = [
-            "SELECT COUNT(*) as count FROM users WHERE role = 'client'",
-            "SELECT COUNT(*) as count FROM eas",
-            "SELECT COUNT(*) as count FROM trading_pairs",
-            "SELECT COUNT(*) as count FROM account_details"
-        ];
-        
-        const results = await Promise.all(queries.map(query => 
-            fetch('/api/admin?action=data', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sql: query })
-            }).then(r => r.json())
-        ));
-        
-        // Update stats
-        results.forEach((result, index) => {
-            if (result.success && statCards[index]) {
-                statCards[index].textContent = result.rows[0].count;
+        // Load dashboard stats
+        async function refreshStats() {
+            const statsGrid = document.getElementById('statsGrid');
+            if (!statsGrid) return;
+            
+            const statCards = statsGrid.querySelectorAll('.stat-number');
+            if (statCards.length === 0) return;
+            
+            // Show loading
+            statCards.forEach(card => card.textContent = '...');
+            
+            try {
+                const queries = [
+                    "SELECT COUNT(*) as count FROM users WHERE role = 'client'",
+                    "SELECT COUNT(*) as count FROM eas",
+                    "SELECT COUNT(*) as count FROM trading_pairs",
+                    "SELECT COUNT(*) as count FROM account_details",
+                    "SELECT COUNT(*) as count FROM products WHERE status = 'active'",
+                    "SELECT COUNT(*) as count FROM courses WHERE status = 'active'"
+                ];
+                
+                const results = await Promise.all(queries.map(query => 
+                    fetch('/api/admin?action=data', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ sql: query })
+                    }).then(r => r.json())
+                ));
+                
+                // Update stats
+                results.forEach((result, index) => {
+                    if (result.success && statCards[index]) {
+                        statCards[index].textContent = result.rows[0].count;
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
             }
-        });
-        
-    } catch (error) {
-        console.error('Error loading stats:', error);
-    }
-}
+        }
 
-// Initialize dashboard
-function initializeDashboard() {
-    const user = checkAuth();
-    if (!user) return;
-    
-    console.log('Dashboard initialized for:', user.email, 'Role:', user.role);
-    initializeTabs();
-    refreshStats();
-}
+        // Product management functions
+        function showAddProductModal() {
+            showAlert('Add product feature coming soon!', 'success');
+        }
 
-// Auto-initialize if on dashboard page
-if (document.querySelector('.dashboard')) {
-    document.addEventListener('DOMContentLoaded', initializeDashboard);
-}
+        function showAddCourseModal() {
+            showAlert('Add course feature coming soon!', 'success');
+        }
+
+        function loadRevenueData() {
+            showAlert('Revenue data refreshed!', 'success');
+        }
+
+        function loadAnalytics() {
+            showAlert('Analytics data refreshed!', 'success');
+        }
+
+        // Initialize dashboard
+        function initializeDashboard() {
+            const user = checkAuth();
+            if (!user) return;
+            
+            console.log('Dashboard initialized for:', user.email, 'Role:', user.role);
+            initializeTabs();
+            refreshStats();
+        }
+
+        // Auto-initialize if on dashboard page
+        if (document.querySelector('.dashboard')) {
+            document.addEventListener('DOMContentLoaded', initializeDashboard);
+        }
     </script>
 </body>
 </html>
