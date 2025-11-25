@@ -232,12 +232,14 @@
                         setTimeout(() => {
                             window.location.href = '/verify-email.html';
                         }, 2000);
-                    
+                    } else {
+                        showAlert('Account created successfully! Redirecting to login...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/login.html';
+                        }, 2000);
+                    }
                 } else {
-                            showAlert('Account created successfully! Redirecting to login...', 'success');
-                            setTimeout(() => {
-                                window.location.href = '/login.html';
-                            }, 2000);
+                    showAlert(data.error || 'Registration failed');
                 }
             } catch (error) {
                 console.error('Registration error:', error);
@@ -272,4 +274,3 @@
     </script>
 </body>
 </html>
-
