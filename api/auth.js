@@ -20,6 +20,16 @@ export default async function handler(req, res) {
           return await handleRegister(req, res);
         case 'login':
           return await handleLogin(req, res);
+        case 'verify-email':
+          return await handleVerifyEmail(req, res);
+        case 'resend-verification':
+          return await handleResendVerification(req, res);
+        case 'logout':
+          return await handleLogout(req, res);
+        case 'password-reset-request':
+          return await handlePasswordResetRequest(req, res);
+        case 'password-reset':
+          return await handlePasswordReset(req, res);
         default:
           return res.status(404).json({ error: 'Auth endpoint not found' });
       }
@@ -88,17 +98,19 @@ async function handleRegister(req, res) {
 
     const userResult = await executeQuery(
       `INSERT INTO users 
-       (email, password_hash, name, phone, role, verification_token) 
-       VALUES ($1, $2, $3, $4, 'client', $5) 
+       (email, password_hash, name, phone, role, verification_token, state) 
+       VALUES ($1, $2, $3, $4, 'client', $5, 'pending') 
        RETURNING id, email, name, role, state, created_at`,
       [email.toLowerCase(), passwordHash, name, phone, verificationToken]
     );
 
     console.log('User registered successfully:', email);
+    console.log('Verification token:', verificationToken);
+    console.log('Verification URL:', `${process.env.FRONTEND_URL || 'https://your-domain.com'}/verify-email.html?token=${verificationToken}`);
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful.',
+      message: 'Registration successful! Please check your email to verify your account.',
       user: {
         id: userResult.rows[0].id,
         email: userResult.rows[0].email,
@@ -106,7 +118,8 @@ async function handleRegister(req, res) {
         role: userResult.rows[0].role,
         state: userResult.rows[0].state,
         created_at: userResult.rows[0].created_at
-      }
+      },
+      requires_verification: true
     });
 
   } catch (error) {
@@ -137,7 +150,7 @@ async function handleLogin(req, res) {
     // Find user by email
     const userResult = await executeQuery(
       `SELECT id, email, password_hash, name, role, state, 
-              is_locked, failed_login_attempts, last_login
+              is_verified, is_locked, failed_login_attempts, last_login
        FROM users 
        WHERE email = $1`,
       [email.toLowerCase()]
@@ -157,6 +170,14 @@ async function handleLogin(req, res) {
       return res.status(423).json({
         success: false,
         error: 'Account is locked. Please contact support.'
+      });
+    }
+
+    // Check if email is verified
+    if (!user.is_verified) {
+      return res.status(403).json({
+        success: false,
+        error: 'Please verify your email address before logging in. Check your email for verification instructions.'
       });
     }
 
@@ -238,7 +259,137 @@ async function handleLogin(req, res) {
   }
 }
 
-// Logout handler (optional - for future use)
+// Email verification handler
+async function handleVerifyEmail(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({
+      success: false,
+      error: 'Verification token is required'
+    });
+  }
+
+  try {
+    // Find user by verification token
+    const userResult = await executeQuery(
+      `SELECT id, email, is_verified 
+       FROM users 
+       WHERE verification_token = $1`,
+      [token]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid verification token'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Check if already verified
+    if (user.is_verified) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email already verified'
+      });
+    }
+
+    // Mark email as verified and clear verification token
+    await executeQuery(
+      `UPDATE users 
+       SET is_verified = true, verification_token = NULL, state = 'active'
+       WHERE id = $1`,
+      [user.id]
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Email verified successfully! You can now login to your account.'
+    });
+
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Email verification failed: ' + error.message
+    });
+  }
+}
+
+// Resend verification email handler
+async function handleResendVerification(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      error: 'Email is required'
+    });
+  }
+
+  try {
+    // Find user by email
+    const userResult = await executeQuery(
+      'SELECT id, email, is_verified FROM users WHERE email = $1',
+      [email.toLowerCase()]
+    );
+
+    if (userResult.rows.length === 0) {
+      // Don't reveal whether email exists
+      return res.status(200).json({
+        success: true,
+        message: 'If an account with this email exists, a verification email has been sent.'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Check if already verified
+    if (user.is_verified) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is already verified'
+      });
+    }
+
+    // Generate new verification token
+    const newVerificationToken = generateToken();
+    
+    // Update verification token
+    await executeQuery(
+      'UPDATE users SET verification_token = $1 WHERE id = $2',
+      [newVerificationToken, user.id]
+    );
+
+    // In production, send actual email here
+    console.log('New verification token for', email, ':', newVerificationToken);
+    console.log('Verification URL:', `${process.env.FRONTEND_URL || 'https://your-domain.com'}/verify-email.html?token=${newVerificationToken}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'If an account with this email exists, a verification email has been sent.'
+    });
+
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to resend verification email: ' + error.message
+    });
+  }
+}
+
+// Logout handler
 async function handleLogout(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -274,7 +425,7 @@ async function handleLogout(req, res) {
   }
 }
 
-// Password reset request handler (optional - for future use)
+// Password reset request handler
 async function handlePasswordResetRequest(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -332,7 +483,7 @@ async function handlePasswordResetRequest(req, res) {
   }
 }
 
-// Password reset handler (optional - for future use)
+// Password reset handler
 async function handlePasswordReset(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
