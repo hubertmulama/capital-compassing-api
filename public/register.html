@@ -227,15 +227,17 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    showAlert('Account created successfully! Redirecting to login...', 'success');
-                    
-                    // Redirect to login after delay
-                    setTimeout(() => {
-                        window.location.href = '/login.html';
-                    }, 2000);
+                    if (data.requires_verification) {
+                        showAlert('Account created successfully! Redirecting to verification...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/verify-email.html';
+                        }, 2000);
                     
                 } else {
-                    showAlert(data.error || 'Registration failed');
+                            showAlert('Account created successfully! Redirecting to login...', 'success');
+                            setTimeout(() => {
+                                window.location.href = '/login.html';
+                            }, 2000);
                 }
             } catch (error) {
                 console.error('Registration error:', error);
@@ -270,3 +272,4 @@
     </script>
 </body>
 </html>
+
