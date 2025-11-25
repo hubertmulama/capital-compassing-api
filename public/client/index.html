@@ -25,6 +25,18 @@
                 <div class="nav-item" data-tab="eas">
                     <i class="fas fa-robot"></i> My EAs
                 </div>
+                <div class="nav-item" data-tab="marketplace">
+                    <i class="fas fa-store"></i> EA Marketplace
+                </div>
+                <div class="nav-item" data-tab="education">
+                    <i class="fas fa-graduation-cap"></i> Trading Academy
+                </div>
+                <div class="nav-item" data-tab="community">
+                    <i class="fas fa-users"></i> Community
+                </div>
+                <div class="nav-item" data-tab="ai-studio">
+                    <i class="fas fa-robot"></i> AI Studio
+                </div>
                 <div class="nav-item" data-tab="profile">
                     <i class="fas fa-user"></i> Profile
                 </div>
@@ -67,16 +79,56 @@
                         <div class="stat-number" id="accountStatus">Active</div>
                         <div class="stat-label">Account Status</div>
                     </div>
+                    <div class="stat-card">
+                        <i class="fas fa-coins"></i>
+                        <div class="stat-number" id="weeklyProfit">$0</div>
+                        <div class="stat-label">Weekly Profit</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-trophy"></i>
+                        <div class="stat-number" id="winRate">0%</div>
+                        <div class="stat-label">Win Rate</div>
+                    </div>
                 </div>
                 
                 <div class="content-area">
                     <h3>Welcome to Your Dashboard</h3>
-                    <p>Manage your trading accounts and expert advisors from this portal.</p>
+                    <p>Manage your trading accounts, expert advisors, and access premium trading tools from this portal.</p>
                     
-                    <div style="margin-top: 1.5rem;">
+                    <div style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                         <button class="btn" onclick="loadClientAccounts()">
                             <i class="fas fa-sync"></i> Refresh My Data
                         </button>
+                        <button class="btn btn-primary" onclick="switchTab('marketplace')">
+                            <i class="fas fa-store"></i> Browse EAs
+                        </button>
+                        <button class="btn btn-success" onclick="switchTab('education')">
+                            <i class="fas fa-graduation-cap"></i> Learn Trading
+                        </button>
+                        <button class="btn btn-warning" onclick="switchTab('ai-studio')">
+                            <i class="fas fa-robot"></i> AI Studio
+                        </button>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div style="margin-top: 2rem;">
+                        <h4>Recent Activity</h4>
+                        <div class="result-area">
+                            <div style="padding: 1rem;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Smart Trend EA Performance</span>
+                                    <span style="color: #10b981;">+$245.50</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <span>Grid Master EA Trades</span>
+                                    <span>12 trades today</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Account Balance</span>
+                                    <span style="color: #3b82f6;">$12,458.75</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -111,6 +163,606 @@
                 </div>
             </div>
 
+            <!-- EA Marketplace Tab -->
+            <div class="tab-content" id="marketplace">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>EA Marketplace</h3>
+                        <div class="search-bar">
+                            <input type="text" id="eaSearch" placeholder="Search EAs, indicators..." class="form-control">
+                            <button class="btn" onclick="searchEAs()">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Categories Filter -->
+                    <div class="categories-filter">
+                        <button class="btn-filter active" data-category="all">All EAs</button>
+                        <button class="btn-filter" data-category="forex">Forex</button>
+                        <button class="btn-filter" data-category="crypto">Crypto</button>
+                        <button class="btn-filter" data-category="stocks">Stocks</button>
+                        <button class="btn-filter" data-category="free">Free</button>
+                        <button class="btn-filter" data-category="premium">Premium</button>
+                        <button class="btn-filter" data-category="featured">Featured</button>
+                    </div>
+
+                    <!-- EA Grid -->
+                    <div class="products-grid" id="eaGrid">
+                        <!-- EA Card 1 -->
+                        <div class="product-card">
+                            <div class="product-badge premium">Premium</div>
+                            <div class="product-image">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="product-info">
+                                <h4>Smart Trend EA</h4>
+                                <p class="product-description">Advanced trend-following EA with AI-powered entry signals and dynamic risk management.</p>
+                                <div class="product-meta">
+                                    <span class="rating">⭐ 4.8 (124)</span>
+                                    <span class="downloads">📥 2.4K</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="current-price">$149</span>
+                                    <span class="original-price">$199</span>
+                                </div>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary" onclick="viewEADetails(1)">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <button class="btn btn-success" onclick="addToCart(1)">
+                                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EA Card 2 -->
+                        <div class="product-card">
+                            <div class="product-badge free">Free</div>
+                            <div class="product-image">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="product-info">
+                                <h4>Grid Master EA</h4>
+                                <p class="product-description">Grid trading EA with dynamic lot sizing and advanced risk management for stable returns.</p>
+                                <div class="product-meta">
+                                    <span class="rating">⭐ 4.5 (89)</span>
+                                    <span class="downloads">📥 1.8K</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="current-price">Free</span>
+                                </div>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary" onclick="viewEADetails(2)">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <button class="btn btn-success" onclick="downloadEA(2)">
+                                        <i class="fas fa-download"></i> Download Free
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EA Card 3 -->
+                        <div class="product-card">
+                            <div class="product-badge featured">Featured</div>
+                            <div class="product-image">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="product-info">
+                                <h4>Scalper Pro EA</h4>
+                                <p class="product-description">High-frequency scalping EA with ultra-fast execution and tight stop losses.</p>
+                                <div class="product-meta">
+                                    <span class="rating">⭐ 4.9 (67)</span>
+                                    <span class="downloads">📥 1.2K</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="current-price">$299</span>
+                                    <span class="original-price">$399</span>
+                                </div>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary" onclick="viewEADetails(3)">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <button class="btn btn-success" onclick="addToCart(3)">
+                                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EA Card 4 -->
+                        <div class="product-card">
+                            <div class="product-badge premium">Premium</div>
+                            <div class="product-image">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="product-info">
+                                <h4>Risk Manager EA</h4>
+                                <p class="product-description">Advanced risk management EA that works with any strategy to protect your capital.</p>
+                                <div class="product-meta">
+                                    <span class="rating">⭐ 4.7 (92)</span>
+                                    <span class="downloads">📥 956</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="current-price">$179</span>
+                                </div>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary" onclick="viewEADetails(4)">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <button class="btn btn-success" onclick="addToCart(4)">
+                                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EA Card 5 -->
+                        <div class="product-card">
+                            <div class="product-badge free">Free</div>
+                            <div class="product-image">
+                                <i class="fas fa-wave-square"></i>
+                            </div>
+                            <div class="product-info">
+                                <h4>Fibonacci EA</h4>
+                                <p class="product-description">Fibonacci-based EA that identifies key support and resistance levels for precise entries.</p>
+                                <div class="product-meta">
+                                    <span class="rating">⭐ 4.3 (78)</span>
+                                    <span class="downloads">📥 1.5K</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="current-price">Free</span>
+                                </div>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary" onclick="viewEADetails(5)">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <button class="btn btn-success" onclick="downloadEA(5)">
+                                        <i class="fas fa-download"></i> Download Free
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- EA Card 6 -->
+                        <div class="product-card">
+                            <div class="product-badge premium">Premium</div>
+                            <div class="product-image">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="product-info">
+                                <h4>Neural Network EA</h4>
+                                <p class="product-description">AI-powered EA using neural networks to adapt to changing market conditions in real-time.</p>
+                                <div class="product-meta">
+                                    <span class="rating">⭐ 4.9 (45)</span>
+                                    <span class="downloads">📥 623</span>
+                                </div>
+                                <div class="product-price">
+                                    <span class="current-price">$499</span>
+                                </div>
+                                <div class="product-actions">
+                                    <button class="btn btn-primary" onclick="viewEADetails(6)">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    <button class="btn btn-success" onclick="addToCart(6)">
+                                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Education Tab -->
+            <div class="tab-content" id="education">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>Trading Academy</h3>
+                        <div class="progress-tracker">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 35%"></div>
+                            </div>
+                            <span>35% Complete</span>
+                        </div>
+                    </div>
+
+                    <!-- Course Categories -->
+                    <div class="categories-grid">
+                        <div class="category-card" onclick="loadCategory('beginner')">
+                            <div class="category-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <h4>Beginner</h4>
+                            <p>Start your trading journey with the basics</p>
+                            <span class="course-count">8 courses</span>
+                        </div>
+                        
+                        <div class="category-card" onclick="loadCategory('intermediate')">
+                            <div class="category-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h4>Intermediate</h4>
+                            <p>Advanced strategies & techniques</p>
+                            <span class="course-count">12 courses</span>
+                        </div>
+                        
+                        <div class="category-card" onclick="loadCategory('advanced')">
+                            <div class="category-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <h4>Advanced</h4>
+                            <p>Master-level trading concepts</p>
+                            <span class="course-count">6 courses</span>
+                        </div>
+
+                        <div class="category-card" onclick="loadCategory('ea-development')">
+                            <div class="category-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <h4>EA Development</h4>
+                            <p>Create your own expert advisors</p>
+                            <span class="course-count">5 courses</span>
+                        </div>
+                    </div>
+
+                    <!-- Featured Courses -->
+                    <h4 style="margin-top: 2rem;">Featured Courses</h4>
+                    <div class="courses-grid">
+                        <div class="course-card">
+                            <div class="course-image" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="course-info">
+                                <h5>EA Development Masterclass</h5>
+                                <p>Learn to create profitable Expert Advisors from scratch using MQL4/MQL5</p>
+                                <div class="course-meta">
+                                    <span>🕒 12 hours</span>
+                                    <span>📚 45 lessons</span>
+                                </div>
+                                <div class="course-price">$199</div>
+                                <button class="btn btn-primary" onclick="enrollCourse(1)">Enroll Now</button>
+                            </div>
+                        </div>
+                        
+                        <div class="course-card">
+                            <div class="course-image" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="course-info">
+                                <h5>Advanced Technical Analysis</h5>
+                                <p>Master chart patterns, indicators, and price action trading strategies</p>
+                                <div class="course-meta">
+                                    <span>🕒 8 hours</span>
+                                    <span>📚 32 lessons</span>
+                                </div>
+                                <div class="course-price">$149</div>
+                                <button class="btn btn-primary" onclick="enrollCourse(2)">Enroll Now</button>
+                            </div>
+                        </div>
+
+                        <div class="course-card">
+                            <div class="course-image" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="course-info">
+                                <h5>Risk Management Pro</h5>
+                                <p>Learn professional risk management techniques to protect your capital</p>
+                                <div class="course-meta">
+                                    <span>🕒 6 hours</span>
+                                    <span>📚 24 lessons</span>
+                                </div>
+                                <div class="course-price">$129</div>
+                                <button class="btn btn-primary" onclick="enrollCourse(3)">Enroll Now</button>
+                            </div>
+                        </div>
+
+                        <div class="course-card">
+                            <div class="course-image" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="course-info">
+                                <h5>AI in Trading</h5>
+                                <p>Discover how artificial intelligence is revolutionizing trading strategies</p>
+                                <div class="course-meta">
+                                    <span>🕒 10 hours</span>
+                                    <span>📚 38 lessons</span>
+                                </div>
+                                <div class="course-price">$249</div>
+                                <button class="btn btn-primary" onclick="enrollCourse(4)">Enroll Now</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Learning Path -->
+                    <div style="margin-top: 2rem;">
+                        <h4>Recommended Learning Path</h4>
+                        <div class="result-area">
+                            <div style="padding: 1rem;">
+                                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                    <div style="background: #10b981; color: white; padding: 0.5rem; border-radius: 50%; margin-right: 1rem;">1</div>
+                                    <div>
+                                        <strong>Trading Fundamentals</strong>
+                                        <p style="margin: 0; color: #6b7280;">Complete 5/8 lessons</p>
+                                    </div>
+                                    <button class="btn btn-primary" style="margin-left: auto; width: auto;">Continue</button>
+                                </div>
+                                <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+                                    <div style="background: #3b82f6; color: white; padding: 0.5rem; border-radius: 50%; margin-right: 1rem;">2</div>
+                                    <div>
+                                        <strong>Technical Analysis Basics</strong>
+                                        <p style="margin: 0; color: #6b7280;">Locked - Complete previous course</p>
+                                    </div>
+                                    <button class="btn btn-secondary" style="margin-left: auto; width: auto;" disabled>Start</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Community Tab -->
+            <div class="tab-content" id="community">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>Trading Community</h3>
+                        <button class="btn btn-primary" onclick="showCreatePostModal()">
+                            <i class="fas fa-plus"></i> Create Post
+                        </button>
+                    </div>
+
+                    <!-- Community Stats -->
+                    <div class="community-stats">
+                        <div class="stat">
+                            <div class="stat-number">1,247</div>
+                            <div class="stat-label">Active Traders</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">5,892</div>
+                            <div class="stat-label">Posts</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">342</div>
+                            <div class="stat-label">Signals Today</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">89%</div>
+                            <div class="stat-label">Success Rate</div>
+                        </div>
+                    </div>
+
+                    <!-- Feed -->
+                    <div class="community-feed">
+                        <!-- Post 1 -->
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="user-info">
+                                    <strong>John Trader (Verified Pro)</strong>
+                                    <span>2 hours ago • EURUSD Analysis</span>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <h5>EURUSD Bullish Breakout Expected</h5>
+                                <p>Looking at the daily chart, EURUSD is approaching a key resistance level at 1.0850. My analysis suggests a breakout above this level could lead to a move towards 1.0950. Key factors supporting this view:</p>
+                                <ul>
+                                    <li>Strong bullish momentum on 4H timeframe</li>
+                                    <li>RSI showing positive divergence</li>
+                                    <li>Fundamental factors favoring Euro strength</li>
+                                </ul>
+                                <div class="post-chart">
+                                    <div class="chart-placeholder">📈 EURUSD Daily Chart Analysis</div>
+                                </div>
+                            </div>
+                            <div class="post-actions">
+                                <button class="btn-like">👍 24</button>
+                                <button class="btn-comment">💬 8 Comments</button>
+                                <button class="btn-share">🔄 Share</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Post 2 -->
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="user-info">
+                                    <strong>Sarah Crypto Expert</strong>
+                                    <span>5 hours ago • BTCUSD Signal</span>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <h5>Bitcoin Breaking Key Resistance - LONG Setup</h5>
+                                <p>BTCUSD has broken above the $42,000 resistance level with strong volume. This is a significant technical breakout that could target $45,000 in the short term.</p>
+                                <p><strong>Entry:</strong> $42,100 - $42,300<br>
+                                <strong>Stop Loss:</strong> $41,500<br>
+                                <strong>Take Profit:</strong> $44,800</p>
+                                <div class="post-chart">
+                                    <div class="chart-placeholder">📊 BTCUSD 4H Chart Breakout</div>
+                                </div>
+                            </div>
+                            <div class="post-actions">
+                                <button class="btn-like">👍 42</button>
+                                <button class="btn-comment">💬 15 Comments</button>
+                                <button class="btn-share">🔄 Share</button>
+                            </div>
+                        </div>
+
+                        <!-- Post 3 -->
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="user-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="user-info">
+                                    <strong>Mike EA Developer</strong>
+                                    <span>1 day ago • EA Development</span>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                <h5>New Grid Trading EA - Free Download</h5>
+                                <p>Just released a new grid trading EA with enhanced risk management features. Key improvements:</p>
+                                <ul>
+                                    <li>Dynamic lot sizing based on account balance</li>
+                                    <li>Auto-stop feature during high volatility</li>
+                                    <li>Improved grid spacing algorithm</li>
+                                </ul>
+                                <p>Free download available for community members. Let me know your feedback!</p>
+                            </div>
+                            <div class="post-actions">
+                                <button class="btn-like">👍 67</button>
+                                <button class="btn-comment">💬 23 Comments</button>
+                                <button class="btn-share">🔄 Share</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Studio Tab -->
+            <div class="tab-content" id="ai-studio">
+                <div class="content-area">
+                    <div class="content-header">
+                        <h3>AI Enhancement Studio</h3>
+                        <div class="ai-credits">
+                            <span>AI Credits: <strong>5</strong> remaining</span>
+                            <button class="btn btn-warning" onclick="buyAICredits()">Buy More Credits</button>
+                        </div>
+                    </div>
+
+                    <!-- EA Enhancement Section -->
+                    <div class="ai-section">
+                        <h4><i class="fas fa-magic"></i> Enhance Your EA</h4>
+                        <p>Upload your EA settings and let our AI suggest optimizations for better performance and risk management.</p>
+                        
+                        <div class="enhancement-form">
+                            <div class="form-group">
+                                <label>Select Your EA</label>
+                                <select class="form-control" id="selectEA">
+                                    <option value="">Choose an EA to enhance...</option>
+                                    <option value="1">Smart Trend EA</option>
+                                    <option value="2">Grid Master EA</option>
+                                    <option value="3">Scalper Pro EA</option>
+                                    <option value="custom">Custom EA</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Enhancement Goals</label>
+                                <textarea class="form-control" id="enhancementGoals" placeholder="What would you like to improve? (e.g., reduce drawdown, increase win rate, better risk management, optimize parameters for current market conditions)"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Current EA Settings (JSON Format)</label>
+                                <textarea class="form-control" id="currentSettings" placeholder='Paste your EA settings here in JSON format. Example:
+{
+  "lot_size": 0.1,
+  "stop_loss": 50,
+  "take_profit": 100,
+  "max_spread": 20,
+  "risk_per_trade": 2
+}' rows="6"></textarea>
+                            </div>
+                            
+                            <button class="btn btn-primary" onclick="analyzeWithAI()">
+                                <i class="fas fa-robot"></i> Analyze with AI (1 Credit)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Market Analysis Section -->
+                    <div class="ai-section">
+                        <h4><i class="fas fa-chart-line"></i> AI Market Analysis</h4>
+                        <p>Get AI-powered analysis for any trading instrument.</p>
+                        
+                        <div class="enhancement-form">
+                            <div class="form-group">
+                                <label>Select Instrument</label>
+                                <select class="form-control" id="analysisSymbol">
+                                    <option value="EURUSD">EUR/USD</option>
+                                    <option value="GBPUSD">GBP/USD</option>
+                                    <option value="USDJPY">USD/JPY</option>
+                                    <option value="BTCUSD">BTC/USD</option>
+                                    <option value="ETHUSD">ETH/USD</option>
+                                    <option value="XAUUSD">Gold (XAU/USD)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Timeframe</label>
+                                <select class="form-control" id="analysisTimeframe">
+                                    <option value="H1">1 Hour</option>
+                                    <option value="H4">4 Hours</option>
+                                    <option value="D1">Daily</option>
+                                    <option value="W1">Weekly</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Analysis Focus</label>
+                                <select class="form-control" id="analysisFocus">
+                                    <option value="technical">Technical Analysis</option>
+                                    <option value="sentiment">Market Sentiment</option>
+                                    <option value="risk">Risk Assessment</option>
+                                    <option value="entry">Entry/Exit Points</option>
+                                </select>
+                            </div>
+                            
+                            <button class="btn btn-success" onclick="analyzeMarket()">
+                                <i class="fas fa-chart-bar"></i> Analyze Market (1 Credit)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Previous Enhancements -->
+                    <div class="ai-section">
+                        <h4><i class="fas fa-history"></i> Previous Enhancements</h4>
+                        <div class="enhancement-history">
+                            <div class="enhancement-item">
+                                <div class="enhancement-header">
+                                    <strong>Smart Trend EA Enhancement</strong>
+                                    <span class="enhancement-date">2 days ago</span>
+                                </div>
+                                <p><strong>Goal:</strong> Reduce maximum drawdown and improve risk-adjusted returns</p>
+                                <div class="enhancement-result">
+                                    <strong>AI Suggestions:</strong>
+                                    <ul>
+                                        <li>Reduce lot size by 30% during high volatility periods (VIX > 20)</li>
+                                        <li>Implement dynamic stop loss based on 2x ATR (14 period)</li>
+                                        <li>Add trailing stop activation after reaching 50 pips profit</li>
+                                        <li>Optimize RSI parameters from (14,70,30) to (21,75,25) for better signals</li>
+                                        <li>Add correlation filter to avoid trading correlated pairs simultaneously</li>
+                                    </ul>
+                                    <p><strong>Expected Improvement:</strong> 15% reduction in max drawdown, 8% improvement in Sharpe ratio</p>
+                                </div>
+                            </div>
+
+                            <div class="enhancement-item">
+                                <div class="enhancement-header">
+                                    <strong>Grid Master EA Optimization</strong>
+                                    <span class="enhancement-date">1 week ago</span>
+                                </div>
+                                <p><strong>Goal:</strong> Increase grid efficiency during ranging markets</p>
+                                <div class="enhancement-result">
+                                    <strong>AI Suggestions:</strong>
+                                    <ul>
+                                        <li>Implement ADX filter to disable grid during strong trends (ADX > 25)</li>
+                                        <li>Optimize grid spacing using Bollinger Band width instead of fixed pips</li>
+                                        <li>Add volume-weighted position sizing</li>
+                                        <li>Implement time-based grid reset during low volatility periods</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Profile Tab -->
             <div class="tab-content" id="profile">
                 <div class="content-area">
@@ -125,236 +777,57 @@
 
     <script src="/assets/app.js"></script>
     <script>
-// Authentication functions for client dashboard
-function checkAuth() {
-    const sessionToken = localStorage.getItem('sessionToken');
-    const user = localStorage.getItem('user');
-    
-    if (!sessionToken || !user) {
-        window.location.href = '/login.html';
-        return null;
-    }
-    
-    return JSON.parse(user);
-}
+        // Authentication functions for client dashboard
+        function checkAuth() {
+            const sessionToken = localStorage.getItem('sessionToken');
+            const user = localStorage.getItem('user');
+            
+            if (!sessionToken || !user) {
+                window.location.href = '/login.html';
+                return null;
+            }
+            
+            return JSON.parse(user);
+        }
 
-function logout() {
-    localStorage.removeItem('sessionToken');
-    localStorage.removeItem('user');
-    window.location.href = '/login.html';
-}
+        function logout() {
+            localStorage.removeItem('sessionToken');
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+        }
 
-function initializeTabs() {
-    const navItems = document.querySelectorAll('.nav-item');
-    if (navItems.length === 0) return;
-    
-    navItems.forEach(item => {
-        item.addEventListener('click', function() {
+        // Tab management
+        function initializeTabs() {
+            const navItems = document.querySelectorAll('.nav-item');
+            if (navItems.length === 0) return;
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    if (this.getAttribute('onclick') === 'logout()') return;
+                    
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    const tabContent = document.getElementById(tabId);
+                    if (tabContent) {
+                        tabContent.classList.add('active');
+                    }
+                    
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        function switchTab(tabName) {
             document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             
-            this.classList.add('active');
-            const tabId = this.getAttribute('data-tab');
-            const tabContent = document.getElementById(tabId);
-            if (tabContent) {
-                tabContent.classList.add('active');
-            }
+            const navItem = document.querySelector(`[data-tab="${tabName}"]`);
+            const tabContent = document.getElementById(tabName);
             
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.classList.remove('active');
-            }
-        });
-    });
-}
-
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        sidebar.classList.toggle('active');
-    }
-}
-
-// Client-specific JavaScript - UPDATED FOR NEW SCHEMA
-let clientData = null;
-
-// Initialize client dashboard
-function initializeClientDashboard() {
-    const user = checkAuth();
-    if (!user) return;
-
-    document.getElementById('userWelcome').innerHTML = '<div>Welcome, <strong>' + user.name + '</strong></div>';
-
-    clientData = user;
-    loadClientData();
-    initializeTabs();
-}
-
-// Load all client data
-async function loadClientData() {
-    await loadClientAccounts();
-    await loadClientEAs();
-    await loadClientProfile();
-    updateClientStats();
-}
-
-// Load client accounts - UPDATED
-async function loadClientAccounts() {
-    const resultDiv = document.getElementById('accountsResult');
-    resultDiv.innerHTML = 'Loading...';
-
-    try {
-        const response = await fetch('/api/admin?action=data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                sql: "SELECT man.*, ad.balance, ad.equity, ad.margin, ad.free_margin FROM mt5_account_names man LEFT JOIN account_details ad ON man.id = ad.mt5_name_id WHERE man.user_id = $1 ORDER BY man.created_at DESC",
-                params: [clientData.id]
-            })
-        });
-
-        const data = await response.json();
-        
-        if (data.success) {
-            if (data.rows.length > 0) {
-                let html = '<table><tr><th>MT5 Name</th><th>Status</th><th>Balance</th><th>Equity</th><th>Free Margin</th><th>Created</th></tr>';
-                data.rows.forEach(row => {
-                    html += '<tr>';
-                    html += '<td>' + row.mt5_name + '</td>';
-                    html += '<td><span style="color: ' + (row.state === 'active' ? 'green' : 'red') + '">' + row.state + '</span></td>';
-                    html += '<td>' + (row.balance || 'N/A') + '</td>';
-                    html += '<td>' + (row.equity || 'N/A') + '</td>';
-                    html += '<td>' + (row.free_margin || 'N/A') + '</td>';
-                    html += '<td>' + new Date(row.created_at).toLocaleDateString() + '</td>';
-                    html += '</tr>';
-                });
-                html += '</table>';
-                resultDiv.innerHTML = html;
-            } else {
-                resultDiv.innerHTML = '<div style="color: #6b7280;">No MT5 accounts found</div>';
-            }
-        } else {
-            resultDiv.innerHTML = '<div style="color: red;">Error loading accounts: ' + data.error + '</div>';
-        }
-    } catch (error) {
-        resultDiv.innerHTML = '<div style="color: red;">Failed to load accounts: ' + error.message + '</div>';
-    }
-}
-
-// Load client EAs - UPDATED
-async function loadClientEAs() {
-    const resultDiv = document.getElementById('easResult');
-    resultDiv.innerHTML = 'Loading...';
-
-    try {
-        const response = await fetch('/api/admin?action=data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                sql: "SELECT ce.*, ea.name as ea_name, ea.version, ea.description FROM client_eas ce JOIN eas ea ON ce.ea_id = ea.id WHERE ce.client_id = $1 ORDER BY ea.name",
-                params: [clientData.id]
-            })
-        });
-
-        const data = await response.json();
-        
-        if (data.success) {
-            if (data.rows.length > 0) {
-                let html = '<table><tr><th>EA Name</th><th>Version</th><th>Status</th><th>Description</th></tr>';
-                data.rows.forEach(row => {
-                    html += '<tr>';
-                    html += '<td>' + row.ea_name + '</td>';
-                    html += '<td>' + (row.version || 'N/A') + '</td>';
-                    html += '<td><span style="color: ' + (row.state === 'enabled' ? 'green' : 'red') + '">' + row.state + '</span></td>';
-                    html += '<td>' + (row.description || 'No description') + '</td>';
-                    html += '</tr>';
-                });
-                html += '</table>';
-                resultDiv.innerHTML = html;
-            } else {
-                resultDiv.innerHTML = '<div style="color: #6b7280;">No Expert Advisors assigned</div>';
-            }
-        } else {
-            resultDiv.innerHTML = '<div style="color: red;">Error loading EAs: ' + data.error + '</div>';
-        }
-    } catch (error) {
-        resultDiv.innerHTML = '<div style="color: red;">Failed to load EAs: ' + error.message + '</div>';
-    }
-}
-
-// Load client profile - UPDATED
-async function loadClientProfile() {
-    const profileDiv = document.getElementById('profileInfo');
-    
-    try {
-        const response = await fetch('/api/admin?action=data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                sql: "SELECT * FROM users WHERE id = $1",
-                params: [clientData.id]
-            })
-        });
-
-        const data = await response.json();
-        
-        if (data.success && data.rows.length > 0) {
-            const user = data.rows[0];
-            profileDiv.innerHTML = 
-                '<div style="display: grid; gap: 1rem; max-width: 400px;">' +
-                '<div><strong>Name:</strong> ' + user.name + '</div>' +
-                '<div><strong>Email:</strong> ' + user.email + '</div>' +
-                '<div><strong>Phone:</strong> ' + (user.phone || 'Not provided') + '</div>' +
-                '<div><strong>Account Status:</strong> <span style="color: ' + (user.state === 'active' ? 'green' : 'red') + '">' + user.state + '</span></div>' +
-                '<div><strong>Member Since:</strong> ' + new Date(user.created_at).toLocaleDateString() + '</div>' +
-                '<div><strong>Role:</strong> ' + user.role + '</div>' +
-                '</div>';
-        }
-    } catch (error) {
-        profileDiv.innerHTML = '<div style="color: red;">Failed to load profile</div>';
-    }
-}
-
-// Update client stats - UPDATED
-async function updateClientStats() {
-    try {
-        // Get account count - UPDATED
-        const accountsResponse = await fetch('/api/admin?action=data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                sql: "SELECT COUNT(*) as count FROM mt5_account_names WHERE user_id = $1 AND state = 'active'",
-                params: [clientData.id]
-            })
-        });
-        
-        const accountsData = await accountsResponse.json();
-        if (accountsData.success) {
-            document.getElementById('totalAccounts').textContent = accountsData.rows[0].count;
-        }
-
-        // Get active EAs count - UPDATED
-        const easResponse = await fetch('/api/admin?action=data', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                sql: "SELECT COUNT(*) as count FROM client_eas WHERE client_id = $1 AND state = 'enabled'",
-                params: [clientData.id]
-            })
-        });
-        
-        const easData = await easResponse.json();
-        if (easData.success) {
-            document.getElementById('activeEAs').textContent = easData.rows[0].count;
-        }
-
-    } catch (error) {
-        console.error('Error updating stats:', error);
-    }
-}
-
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', initializeClientDashboard);
-    </script>
-</body>
-</html>
+            if (navItem) navItem.classList.add
