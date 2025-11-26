@@ -5,15 +5,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { currency, day } = req.query;
+  const { day } = req.query;
 
   // Validate parameters
-  if (!currency || !day) {
-    return res.status(400).json({ error: 'Missing currency or day parameter' });
-  }
-
-  if (currency.length !== 3) {
-    return res.status(400).json({ error: 'Currency must be 3 characters' });
+  if (!day) {
+    return res.status(400).json({ error: 'Missing day parameter' });
   }
 
   const dayInt = parseInt(day);
@@ -22,7 +18,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Map day number to NEW column names
+    // Map day number to column name
     const dayColumns = {
       1: 'monday_state',
       2: 'tuesday_state', 
@@ -33,41 +29,38 @@ export default async function handler(req, res) {
 
     const dayColumn = dayColumns[dayInt];
     
-    // Query using the NEW table and column names
-    const query = `SELECT ${dayColumn} as state FROM news_state WHERE currency = $1`;
-    const values = [currency.toUpperCase()];
+    // Single query to get all currencies at once
+    const query = `SELECT currency, ${dayColumn} as state FROM news_state`;
     
-    const result = await executeQuery(query, values);
+    const result = await executeQuery(query);
 
     if (result.rows.length === 0) {
-      // Currency not found in database - default to enabled
       return res.status(200).json({ 
-        currency: currency.toUpperCase(),
-        day: dayInt,
-        state: 'enabled',
-        message: 'Currency not found in database, defaulting to enabled'
+        success: false,
+        error: 'No currencies found in database',
+        states: {}
       });
     }
 
-    const state = result.rows[0].state;
-    
+    // Build states object
+    const states = {};
+    result.rows.forEach(row => {
+      states[row.currency] = row.state;
+    });
+
     return res.status(200).json({
-      currency: currency.toUpperCase(),
+      success: true,
       day: dayInt,
-      state: state,
+      states: states,
       message: 'Success'
     });
 
   } catch (error) {
     console.error('Database error:', error);
-    
-    // Return enabled state even on database errors (fail-safe)
     return res.status(200).json({ 
+      success: false,
       error: 'Database query failed',
-      currency: currency.toUpperCase(),
-      day: dayInt,
-      state: 'enabled',
-      message: 'Database error, defaulting to enabled for safety'
+      states: {}
     });
   }
 }
