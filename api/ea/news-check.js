@@ -22,19 +22,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Map day number to column name
+    // Map day number to NEW column names
     const dayColumns = {
-      1: 'monday_status',
-      2: 'tuesday_status', 
-      3: 'wednesday_status',
-      4: 'thursday_status',
-      5: 'friday_status'
+      1: 'monday_state',
+      2: 'tuesday_state', 
+      3: 'wednesday_state',
+      4: 'thursday_state',
+      5: 'friday_state'
     };
 
     const dayColumn = dayColumns[dayInt];
     
-    // Use your existing executeQuery function
-    const query = `SELECT ${dayColumn} as status FROM news_status WHERE currency = $1`;
+    // Query using the NEW table and column names
+    const query = `SELECT ${dayColumn} as state FROM news_state WHERE currency = $1`;
     const values = [currency.toUpperCase()];
     
     const result = await executeQuery(query, values);
@@ -44,29 +44,29 @@ export default async function handler(req, res) {
       return res.status(200).json({ 
         currency: currency.toUpperCase(),
         day: dayInt,
-        status: 'enabled',
+        state: 'enabled',
         message: 'Currency not found in database, defaulting to enabled'
       });
     }
 
-    const status = result.rows[0].status;
+    const state = result.rows[0].state;
     
     return res.status(200).json({
       currency: currency.toUpperCase(),
       day: dayInt,
-      status: status,
+      state: state,
       message: 'Success'
     });
 
   } catch (error) {
     console.error('Database error:', error);
     
-    // Return enabled status even on database errors (fail-safe)
+    // Return enabled state even on database errors (fail-safe)
     return res.status(200).json({ 
       error: 'Database query failed',
       currency: currency.toUpperCase(),
       day: dayInt,
-      status: 'enabled',
+      state: 'enabled',
       message: 'Database error, defaulting to enabled for safety'
     });
   }
