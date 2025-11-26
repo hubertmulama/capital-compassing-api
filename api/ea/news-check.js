@@ -1,5 +1,4 @@
-// /api/ea/news-check.js
-import { query } from '../../lib/db';
+import { executeQuery } from '../db-config.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -34,32 +33,41 @@ export default async function handler(req, res) {
 
     const dayColumn = dayColumns[dayInt];
     
-    const result = await query(
-      `SELECT ${dayColumn} as status FROM news_status WHERE currency = $1`,
-      [currency.toUpperCase()]
-    );
+    // Use your existing executeQuery function
+    const query = `SELECT ${dayColumn} as status FROM news_status WHERE currency = $1`;
+    const values = [currency.toUpperCase()];
+    
+    const result = await executeQuery(query, values);
 
     if (result.rows.length === 0) {
+      // Currency not found in database - default to enabled
       return res.status(200).json({ 
         currency: currency.toUpperCase(),
         day: dayInt,
         status: 'enabled',
-        message: 'Currency not found, defaulting to enabled'
+        message: 'Currency not found in database, defaulting to enabled'
       });
     }
 
+    const status = result.rows[0].status;
+    
     return res.status(200).json({
       currency: currency.toUpperCase(),
       day: dayInt,
-      status: result.rows[0].status,
+      status: status,
       message: 'Success'
     });
 
   } catch (error) {
     console.error('Database error:', error);
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      status: 'enabled' // Default to enabled on error
+    
+    // Return enabled status even on database errors (fail-safe)
+    return res.status(200).json({ 
+      error: 'Database query failed',
+      currency: currency.toUpperCase(),
+      day: dayInt,
+      status: 'enabled',
+      message: 'Database error, defaulting to enabled for safety'
     });
   }
 }
